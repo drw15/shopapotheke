@@ -1,27 +1,14 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { ProductPage } from '../pages/ProductPage'
 import { BasketPage } from '../pages/BasketPage'
 import { CheckoutAddressPage } from '../pages/CheckoutAddressPage'
 import { CheckoutShippingPage } from '../pages/CheckoutShippingPage'
-import { CheckoutHeader } from '../components/layout/CheckoutHeader'
-
-function CheckoutPlaceholder({
-  step,
-  title,
-}: {
-  step: 'address' | 'shipping' | 'payment' | 'review'
-  title: string
-}) {
-  return (
-    <>
-      <CheckoutHeader activeStep={step} />
-      <main className="checkout-width" style={{ paddingTop: 40, paddingBottom: 80 }}>
-        <h1>{title}</h1>
-      </main>
-    </>
-  )
-}
+import { CheckoutPaymentPage } from '../pages/CheckoutPaymentPage'
+import { CheckoutReviewPage } from '../pages/CheckoutReviewPage'
+import { ConfirmationPage } from '../pages/ConfirmationPage'
+import { OrdersPage } from '../pages/OrdersPage'
+import { TrackingPage } from '../pages/TrackingPage'
+import { DelayEmailPreviewPage } from '../pages/DelayEmailPreviewPage'
 
 export function AppRoutes() {
   return (
@@ -32,19 +19,13 @@ export function AppRoutes() {
 
       <Route path="/checkout/address" element={<CheckoutAddressPage />} />
       <Route path="/checkout/shipping" element={<CheckoutShippingPage />} />
-      <Route
-        path="/checkout/payment"
-        element={<CheckoutPlaceholder step="payment" title="Zahlungsart" />}
-      />
-      <Route
-        path="/checkout/review"
-        element={<CheckoutPlaceholder step="review" title="Bestellung prüfen" />}
-      />
+      <Route path="/checkout/payment" element={<CheckoutPaymentPage />} />
+      <Route path="/checkout/review" element={<CheckoutReviewPage />} />
 
-      <Route path="/confirmation/:orderId" element={<PlaceholderPage title="Bestellbestätigung" />} />
-      <Route path="/orders" element={<PlaceholderPage title="Meine Bestellungen" />} />
-      <Route path="/orders/:orderId" element={<PlaceholderPage title="Sendungsverfolgung" />} />
-      <Route path="/email-preview/:orderId" element={<PlaceholderPage title="E-Mail-Vorschau" />} />
+      <Route path="/confirmation/:orderId" element={<ConfirmationPage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/orders/:orderId" element={<TrackingPage />} />
+      <Route path="/email-preview/:orderId" element={<DelayEmailPreviewPage />} />
     </Routes>
   )
 }

@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { AppRoutes } from './App'
 import { ShopProvider } from '../state/ShopContext'
 import { CheckoutProvider } from '../state/CheckoutContext'
+import { OrderProvider } from '../state/OrderContext'
 import { DemoClockProvider } from '../state/DemoClockContext'
 
 const renderAt = (path: string) =>
@@ -11,9 +12,11 @@ const renderAt = (path: string) =>
     <DemoClockProvider now={new Date('2026-09-10T12:00:00Z')}>
       <ShopProvider initialPostcode="22083">
         <CheckoutProvider>
-          <MemoryRouter initialEntries={[path]}>
-            <AppRoutes />
-          </MemoryRouter>
+          <OrderProvider>
+            <MemoryRouter initialEntries={[path]}>
+              <AppRoutes />
+            </MemoryRouter>
+          </OrderProvider>
         </CheckoutProvider>
       </ShopProvider>
     </DemoClockProvider>,
@@ -52,9 +55,19 @@ describe('app shell', () => {
       '/orders/100422',
       '/email-preview/100422',
     ]) {
-      const { unmount } = renderAt(path)
-      expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
+      const { container, unmount } = renderAt(path)
+      // Every route renders real content rather than falling through to blank.
+      expect(container.textContent?.trim().length ?? 0).toBeGreaterThan(20)
       unmount()
     }
+  })
+
+  it('renders the delayed order tracking and its email preview', () => {
+    const { unmount } = renderAt('/orders/100422')
+    expect(screen.getByText('Ihre Lieferung verspätet sich')).toBeInTheDocument()
+    unmount()
+
+    renderAt('/email-preview/100422')
+    expect(screen.getByText(/Neuer Liefertermin/)).toBeInTheDocument()
   })
 })

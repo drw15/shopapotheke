@@ -1,0 +1,374 @@
+/* --- confirmation --------------------------------------------------------- */
+
+.confirmation-page,
+.orders-page,
+.tracking-page {
+  padding: 32px 16px 80px;
+}
+
+.confirmation-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.confirmation-hero h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.confirmation-hero p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.confirmation-hero__tick {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--sa-green);
+  color: var(--sa-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.confirmation-shipment {
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  max-width: 640px;
+}
+
+.confirmation-shipment h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.confirmation-shipment__thumbs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.confirmation-shipment__thumbs img {
+  border: 1px solid var(--sa-border);
+  border-radius: 8px;
+  background: var(--sa-white);
+}
+
+.confirmation-shipment__promise {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.confirmation-shipment__destination {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.confirmation-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-top: 22px;
+}
+
+.confirmation-actions__secondary {
+  font-size: 14.5px;
+}
+
+/* --- orders list ---------------------------------------------------------- */
+
+.orders-page__title,
+.tracking-page__title {
+  font-size: 24px;
+  margin: 0 0 22px;
+}
+
+.orders-page__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 860px;
+}
+
+.order-card {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.order-card__shipments {
+  display: block;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.order-card__state {
+  font-size: 12.5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--sa-surface);
+  white-space: nowrap;
+}
+
+.order-card__state--delayed {
+  color: var(--sa-red);
+}
+
+.order-card__thumbs {
+  display: flex;
+  gap: 6px;
+}
+
+.order-card__thumbs img {
+  border: 1px solid var(--sa-border);
+  border-radius: 7px;
+  background: var(--sa-white);
+}
+
+.order-card__link {
+  font-size: 14px;
+}
+
+/* --- tracking ------------------------------------------------------------- */
+
+.tracking-card {
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  max-width: 640px;
+}
+
+.tracking-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.tracking-card__head h2 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.tracking-card__thumbs {
+  display: flex;
+  gap: 6px;
+}
+
+.tracking-card__thumbs img {
+  border: 1px solid var(--sa-border);
+  border-radius: 7px;
+  background: var(--sa-white);
+}
+
+.tracking-card__eta {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.tracking-card__destination {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+}
+
+.tracking-delay {
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  background: var(--sa-peach-soft);
+  border-radius: 12px;
+}
+
+.tracking-delay__headline {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.tracking-delay__eta {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.tracking-delay__original {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.tracking-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--sa-border);
+  padding-top: 16px;
+}
+
+.tracking-timeline__step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+.tracking-timeline__step--done {
+  opacity: 1;
+}
+
+.tracking-timeline__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--sa-border);
+  flex-shrink: 0;
+}
+
+.tracking-timeline__step--done .tracking-timeline__dot {
+  background: var(--sa-green);
+}
+
+.tracking-page__email-note {
+  margin-top: 22px;
+  font-size: 14px;
+  max-width: 640px;
+}
+
+/* --- email preview -------------------------------------------------------- */
+
+.email-preview {
+  padding: 30px 16px 70px;
+  background: var(--sa-surface);
+  min-height: 100vh;
+}
+
+.email-preview__note {
+  max-width: 600px;
+  margin: 0 auto 18px;
+  font-size: 13px;
+  opacity: 0.72;
+}
+
+.email {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--sa-white);
+  border: 1px solid var(--sa-border);
+}
+
+.email__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 22px;
+}
+
+.email__nav {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.email__brand-block {
+  background: var(--sa-email-peach);
+  padding: 26px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email__brand-title {
+  font-size: 19px;
+  font-style: italic;
+  color: var(--sa-red);
+}
+
+.email__brand-sub {
+  font-size: 14px;
+}
+
+.email__body {
+  padding: 24px 22px 28px;
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+.email__body p {
+  margin: 0 0 13px;
+}
+
+.email__eta-label {
+  font-weight: 700;
+  margin-bottom: 2px !important;
+}
+
+.email__eta {
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 10px !important;
+}
+
+.email__original {
+  opacity: 0.75;
+}
+
+.email__cta {
+  display: block;
+  margin: 20px 0 18px;
+  padding: 13px 20px;
+  background: var(--sa-red);
+  color: var(--sa-white);
+  border-radius: 24px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.email__signoff {
+  margin-bottom: 0 !important;
+}
+
+.email__support {
+  background: var(--sa-email-peach);
+  padding: 22px;
+}
+
+.email__support-title {
+  display: block;
+  color: var(--sa-red);
+  font-style: italic;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.email__support-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+/* --- review line ---------------------------------------------------------- */
+
+.review-line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
