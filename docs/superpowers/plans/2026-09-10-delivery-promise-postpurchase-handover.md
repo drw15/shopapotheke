@@ -6,9 +6,22 @@
 
 **Tech stack:** React, TypeScript, Vitest, Testing Library, Playwright, plain CSS using the locked Shop Apotheke tokens.
 
+## Mandatory context before coding
+
+Read in this order:
+
+1. `docs/PRD.md`
+2. `docs/IMPLEMENTATION_HANDOFF.md`
+3. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
+4. `docs/reference/shop-apotheke-reference-screenshots/`
+5. `docs/superpowers/plans/2026-09-10-delivery-promise-implementation-index.md`
+6. this plan
+7. `AGENTS.md`
+
+Before implementing confirmation/tracking/email screens, inspect the relevant Shop Apotheke reference screenshots. The email screenshot is authoritative for email proportions, branding, spacing, CTA, peach surfaces, and support/footer treatment.
+
 ## Global Constraints
 
-- Read the approved design and implementation index first.
 - Confirmed promise is immutable after order confirmation.
 - Current ETA is independent and may change.
 - A shipment is delayed only when current latest ETA exceeds confirmed latest promise.
@@ -17,6 +30,7 @@
 - Delay UX must look like Shop Apotheke, not a SaaS notification system.
 - Delay email uses existing Shop Apotheke email visual language: white/warm background, peach brand/support surfaces, red CTA, restrained copy.
 - No new model/fulfilment terminology is customer-facing.
+- Do not silently alter the established pre-purchase product decisions while building post-purchase flows.
 
 ## Task 1: Add lightweight payment/review and immutable order confirmation
 
@@ -78,261 +92,275 @@ it('freezes checkout promise and initializes ETA separately', () => {
 
 Run `npm run test:run -- src/domain/order/confirmOrder.test.ts`.
 
-Expected failure: missing order module.
+Expected failure: order modules missing.
 
-**Minimal implementation:** copy `promiseMin/Max` into `confirmedPromiseMin/Max`; initialize current ETA equal to those values; do not retain mutable `promiseMin/Max` fields.
+**Minimal implementation:** create immutable confirmed-promise fields and initialize current ETA separately from the selected checkout promise. Payment/review pages may be visually lightweight but must preserve the checkout stepper and lead coherently to confirmation.
 
-**UI:**
-- Payment/review are intentionally lightweight.
-- Preserve checkout stepper.
-- Review page shows destination, provider, and final delivery promise per shipment.
-- `Jetzt kaufen` creates order exactly once.
-- Confirmation shows one promise per shipment.
+Run:
 
-Run tests, design check, build.
+```bash
+npm run test:run -- src/domain/order/confirmOrder.test.ts
+npm run build
+```
 
-**Commit:** `git commit -m "feat: freeze promises at confirmation"`
+Expected: pass.
 
-## Task 2: Add deterministic demo orders and tracking state
+**Commit:** `git commit -m "feat: freeze confirmed delivery promises"`
+
+## Task 2: Add deterministic demo orders and tracking-domain logic
 
 **Create:**
 - `src/data/demoOrders.ts`
 - `src/domain/tracking/trackingState.ts`
 - `src/domain/tracking/trackingState.test.ts`
-- `src/components/tracking/OrderCard.tsx`
-- `src/components/tracking/ShipmentTrackingCard.tsx`
-- `src/components/tracking/TrackingTimeline.tsx`
-- `src/components/tracking/DelayNotice.tsx`
-- `src/pages/OrdersPage.tsx`
-- `src/pages/TrackingPage.tsx`
-- `src/styles/tracking.css`
+
+Required orders:
+
+- `#100421` on time;
+- `#100422` delayed;
+- `#100423` split with shipment 1 delivered and shipment 2 in transit;
+- `#100424` completed.
+
+Dates should be generated from a deterministic demo clock/current reference so they do not become obviously stale.
 
 **Interfaces:**
 
 ```ts
-export function isShipmentDelayed(shipment: ConfirmedShipment): boolean
-export function getTrackingViewModel(order: Order): TrackingViewModel
-export function buildDemoOrders(referenceNow: Date): Order[]
+export type ShipmentTrackingState = {
+  isDelayed:boolean
+  headline?:string
+  currentEtaText:string
+  originalPromiseText?:string
+}
+
+export function getShipmentTrackingState(shipment: ConfirmedShipment): ShipmentTrackingState
 ```
 
-**Required demo orders:**
-- `100421`: on time, in transit;
-- `100422`: delayed by one delivery day beyond promise;
-- `100423`: split, shipment 1 delivered, shipment 2 in transit;
-- `100424`: complete/delivered.
+**Required tests:**
+- ETA inside promise -> not delayed;
+- ETA equal to promise max -> not delayed;
+- ETA after promise max -> delayed;
+- delayed state exposes both new ETA and original promise;
+- split shipments are evaluated independently;
+- delivered shipment stays delivered if another shipment is late.
 
-Use business-calendar helpers so dates remain plausible.
+Run failing test first, then minimal implementation, then pass.
 
-**Failing test first:**
+**Commit:** `git commit -m "feat: add tracking promise breach state"`
 
-```ts
-it('detects delay without mutating the original promise', () => {
-  const shipment = {
-    id:'s1', productIds:['voltaren'], method:'home', provider:'dhl',
-    destinationLabel:'Musterstraße 11, 22083 Hamburg',
-    confirmedPromiseMin:'2026-09-11', confirmedPromiseMax:'2026-09-14',
-    currentEtaMin:'2026-09-15', currentEtaMax:'2026-09-15', status:'in_transit'
-  } as const
-  expect(isShipmentDelayed(shipment)).toBe(true)
-  expect(shipment.confirmedPromiseMax).toBe('2026-09-14')
-})
-```
-
-Expected failure: missing tracking module.
-
-**Visual implementation:**
-- `/orders` is a simple Shop Apotheke-like list, not a dashboard.
-- Delayed page leads with `Ihre Lieferung verspätet sich`.
-- Show `Neuer Liefertermin` prominently.
-- Show `Ursprünglich angekündigt` secondarily.
-- Keep normal parcel timeline below.
-- Split tracking shows independent shipment cards and statuses.
-
-Run tests, design check, build.
-
-**Commit:** `git commit -m "feat: add order tracking and delay state"`
-
-## Task 3: Add proactive delay email preview from the same order data
+## Task 3: Build orders and tracking UI
 
 **Create:**
-- `src/pages/DelayEmailPreview.tsx`
-- `src/pages/DelayEmailPreview.test.tsx`
+- `src/pages/OrdersPage.tsx`
+- `src/pages/TrackingPage.tsx`
+- `src/components/tracking/OrderCard.tsx`
+- `src/components/tracking/ShipmentTrackingCard.tsx`
+- `src/components/tracking/TrackingTimeline.tsx`
+- `src/pages/TrackingPage.test.tsx`
+- `src/styles/tracking.css`
+
+**Behavioral requirements:**
+- `/orders` exposes all four deterministic demo orders;
+- delayed shipment leads with `Ihre Lieferung verspätet sich`;
+- show `Neuer Liefertermin` prominently;
+- show `Ursprünglich angekündigt` as secondary context;
+- do not overwrite/hide the original confirmed promise;
+- split order shows separate shipment cards/statuses;
+- normal on-time order does not get an exception banner.
+
+**Visual requirement:** use Shop Apotheke typography/card language from references. Do not create a modern tracking dashboard, bright status chips, or new information-card system.
+
+Run:
+
+```bash
+npm run test:run -- src/pages/TrackingPage.test.tsx
+npm run check:design
+npm run build
+```
+
+Expected: pass.
+
+Capture 1440x900 screenshots for on-time, delayed and split tracking. Confirm they feel consistent with the supplied Shop Apotheke visual language.
+
+**Commit:** `git commit -m "feat: add honest delivery tracking states"`
+
+## Task 4: Build proactive delay email from shared state
+
+**Create:**
+- `src/domain/notifications/delayEmail.ts`
+- `src/domain/notifications/delayEmail.test.ts`
+- `src/pages/DelayEmailPreviewPage.tsx`
+- `src/pages/DelayEmailPreviewPage.test.tsx`
 - `src/styles/email.css`
-
-**Failing test first:**
-
-```tsx
-it('renders the same new ETA and original promise as tracking', () => {
-  const order = buildDemoOrders(new Date('2026-09-10T08:00:00Z')).find(o => o.id === '100422')!
-  const tracking = getTrackingViewModel(order)
-  render(<DelayEmailPreview order={order} />)
-  expect(screen.getByText(formatPromiseRange(tracking.shipments[0].currentEtaMin, tracking.shipments[0].currentEtaMax))).toBeInTheDocument()
-  expect(screen.getByText(/Ursprünglich angekündigt/)).toBeInTheDocument()
-})
-```
-
-Expected failure: missing email page.
-
-**Visual implementation:**
-- Max-width 600px centered.
-- Main body white / `--sa-surface`.
-- Branded/support panels use `--sa-email-peach` (`#FDD1BC`).
-- CTA is `--sa-red`, pill-shaped.
-- Copy:
-  - `Ihre Lieferung verspätet sich`
-  - greeting
-  - short apology
-  - `Neuer Liefertermin`
-  - original promised date
-  - no-action reassurance
-  - `Sendung verfolgen`
-- Do not recreate unrelated registration-email content.
-- No duplicate hard-coded promise/ETA dates.
-
-Run tests, design check, build.
-
-**Commit:** `git commit -m "feat: add proactive delay email preview"`
-
-## Task 4: Export the prediction matrix and write reviewer handover
-
-**Create:**
-- `README.md`
-- `scripts/exportDemoMatrix.ts`
-- `scripts/exportDemoMatrix.test.ts`
-- `docs/demo-prediction-matrix.csv`
-- `docs/demo-prediction-matrix.md`
 
 **Interface:**
 
 ```ts
-export type MatrixRow = {
-  product:string
-  postcode:string
-  city:string
-  method:'home'|'pickup'
-  provider:'dhl'|'hermes'
-  mean:number
-  q10:number
-  q50:number
-  q90:number
-  confidence:number
-  calibrationError:number
-  supportN:number
-  safeToExpose:boolean
-  roundedWindow:string
-  renderedPromise:string
+export type DelayEmailView = {
+  subject:string
+  greeting:string
+  newEtaText:string
+  originalPromiseText:string
+  trackingHref:string
 }
 
-export function buildMatrixRows(referenceNow: Date): MatrixRow[]
+export function buildDelayEmail(order: Order): DelayEmailView | null
 ```
 
-Use fixed handover reference time `2026-09-10T08:00:00Z` so committed outputs do not change every run.
+**Required test:** for order `100422`, `newEtaText` and `originalPromiseText` must exactly match the values exposed by tracking-domain state. A non-delayed order returns null/not eligible.
 
-**Failing test first:**
+**Visual authority:** inspect the supplied email reference before coding. Match the narrow centered email proportion, Shop Apotheke header/branding, peach support/brand surfaces, red CTA, and restrained typography. Do not create a generic marketing email template.
 
-```ts
-it('exports all 80 model-eligible combinations with raw and displayed output', () => {
-  const rows = buildMatrixRows(new Date('2026-09-10T08:00:00Z'))
-  expect(rows).toHaveLength(80)
-  expect(rows[0]).toMatchObject({ safeToExpose: expect.any(Boolean), roundedWindow: expect.any(String), renderedPromise: expect.any(String) })
-})
+Suggested customer copy:
+
+> **Ihre Lieferung verspätet sich**
+>
+> Guten Tag [generic demo customer],
+>
+> leider kommt Ihre Lieferung später als ursprünglich erwartet.
+>
+> **Neuer Liefertermin**  
+> [new ETA]
+>
+> Ursprünglich angekündigt: [confirmed promise]
+>
+> Sie müssen nichts tun. Wir halten Sie über den weiteren Verlauf Ihrer Lieferung auf dem Laufenden.
+
+CTA: `Sendung verfolgen`.
+
+Run:
+
+```bash
+npm run test:run -- src/domain/notifications/delayEmail.test.ts src/pages/DelayEmailPreviewPage.test.tsx
+npm run check:design
+npm run build
 ```
 
-Expected failure: missing exporter.
+Expected: pass.
 
-**README sections, exact order:**
-1. `What I changed`
-2. `Product decisions and assumptions`
-3. `Architecture`
-4. `Try these scenarios`
-5. `Prediction matrix`
-6. `What is mocked`
-7. `What I would validate in production`
-8. `Run locally`
-9. `Tests`
+Capture email screenshot and compare to the email reference.
 
-The Product Decisions table uses columns:
+**Commit:** `git commit -m "feat: add proactive delay email preview"`
 
-| Decision | Why | Alternative considered | Prototype assumption | Production validation |
+## Task 5: Build reviewer handover README and prediction matrix
 
-It must cover all approved decisions: q10/q90 bounds, cross-functional quantile choice, confidence/calibration/sample gating, future `safe_to_expose`, carrier as model input, PDP carrier envelope, fallback carrier widening, rounding behavior, deterministic cutoff, material split rule, basket vs checkout product detail, destination inheritance, per-shipment override assumption, home-vs-pickup hierarchy, no PUDO steering, NOW! out of scope, silent pre-purchase recalculation, pre-confirmation disruption as model context, immutable promise, shared tracking/email state.
+**Create/modify:**
+- `README.md`
+- `docs/demo/prediction-matrix.md`
+- `docs/demo/scenarios.md`
+- optional generated `docs/demo/prediction-matrix.csv`
 
-**Exact scenarios to document:**
-- Voltaren + `50667`: fast precise.
-- Voltaren + `22083`: raw DHL/Hermes difference that rounds to same customer window.
-- Vitamin D3 + `22083`: visible modest carrier difference in checkout.
-- Fenistil + `10115`: longer safe prediction / visible boundary difference.
-- Vitamin D3 + `80331`: fallback due gate failures.
-- Ibu + `80331`: one carrier safe, one unsafe -> PDP fallback; chosen DHL can narrow later.
-- Vagisan + known postcode: unsupported standard model / external demo shipment.
-- Voltaren + Ibu: single shipment.
-- Voltaren + Vitamin D3 + Vagisan: material split.
-- same split basket: change shipment 1 to pickup; shipment 2 remains home.
-- `/orders/100421`, `/orders/100422`, `/orders/100423`, `/email-preview/100422`.
+README is a product deliverable, not only setup documentation.
 
-Run matrix tests/export.
+It must include:
 
-**Commit:** `git commit -m "docs: add reviewer handover and prediction matrix"`
+1. what the prototype demonstrates;
+2. local run/build/test instructions;
+3. visual-reference path: `docs/reference/shop-apotheke-reference-screenshots/`;
+4. architecture summary;
+5. full `Product decisions and assumptions` section;
+6. a direct statement that q10/q90, exposure thresholds, fulfilment assignment, carrier values, cutoff, and per-shipment override are prototype assumptions;
+7. production note that Product + Data + Last Mile/Operations should jointly agree quantiles/exposure policy and the API should then return `safe_to_expose`;
+8. explicit note that NOW! is left unchanged/out of the prediction model because its production behavior is insufficiently known;
+9. exact `Try these scenarios` table;
+10. link to the full prediction matrix;
+11. tracking demo order IDs;
+12. email preview route;
+13. known limitations/non-goals.
 
-## Task 5: Add E2E and visual-regression gates
+`prediction-matrix.md` must show for each relevant demo combination:
+
+- product;
+- postcode;
+- method;
+- provider;
+- mean;
+- q10;
+- q50;
+- q90;
+- confidence;
+- calibration error;
+- support N;
+- safe-to-expose decision;
+- rounded window;
+- rendered customer-facing outcome.
+
+The matrix is intentionally reviewer-visible so they can inspect the product transformation from model output to displayed promise.
+
+`scenarios.md` must specify exact combinations for:
+
+- fast safe prediction;
+- slower safe prediction;
+- DHL/Hermes raw difference that rounds to same window;
+- one visible carrier difference;
+- low-confidence/support fallback;
+- external-model fallback;
+- non-material split;
+- material Friday-vs-Monday split;
+- split checkout and per-shipment pickup override;
+- on-time/delayed/split tracking;
+- delay email.
+
+**Commit:** `git commit -m "docs: add reviewer delivery promise handover"`
+
+## Task 6: Add final E2E and visual-regression gate
 
 **Create:**
 - `playwright.config.ts`
-- `e2e/delivery-promise.spec.ts`
-- `e2e/visual.spec.ts`
-- screenshot baselines under Playwright snapshot directory
+- `e2e/delivery-journey.spec.ts`
+- `e2e/postpurchase.spec.ts`
+- `e2e/visual-fidelity.spec.ts`
 
-`playwright.config.ts` uses desktop Chromium with 1440x900 viewport and Vite webServer.
+Required end-to-end flows:
 
-**Failing E2E first:** write a canonical split-order flow that:
-1. opens Voltaren PDP;
-2. enters `22083`;
-3. adds to basket;
-4. adds Vitamin D3 and Vagisan through normal basket UI;
-5. sees material split;
-6. enters checkout with home delivery;
-7. sees both shipment cards;
-8. changes only shipment 1 to pickup;
-9. verifies shipment 2 stays home.
+1. PDP generic -> supported postcode -> precise window;
+2. documented unsafe scenario -> fallback;
+3. mixed basket -> material split shown;
+4. checkout home -> DHL/Hermes options;
+5. split checkout -> both blocks visible -> shipment 1 changed to pickup -> shipment 2 unchanged;
+6. confirmation -> confirmed promise visible;
+7. delayed order -> new ETA + original promise;
+8. delay email -> same dates as tracking.
 
-First run should fail before final selectors/pages are complete.
+Visual screenshots at 1440x900 must include at least:
 
-**Visual regression cases:**
-- PDP;
-- material-split basket;
-- split shipping checkout;
-- delayed tracking page;
+- PDP generic;
+- PDP precise;
+- basket material split;
+- checkout home/address;
+- checkout pickup modal;
+- checkout single Versand;
+- checkout split Versand;
+- tracking delayed;
 - delay email.
 
-Before creating baselines, manually compare each at 1440x900 against the provided reference screenshots and `docs/reference/visual-fidelity.md`. Check exact palette, retail-vs-checkout header distinction, basket peach panel, checkout proportions, DHL/Hermes only, radio/button shapes, green delivery text, and absence of generic ecommerce visual drift.
+Before accepting visual baselines, manually compare the applicable screenshot to `docs/reference/shop-apotheke-reference-screenshots/`. Do not blindly update snapshots to make a failing visual test green.
 
-Then create baselines with:
-
-```bash
-npx playwright test e2e/visual.spec.ts --update-snapshots
-```
-
-Run final gate:
+Final commands:
 
 ```bash
 npm run test:run
 npm run check:design
-npm run lint
 npm run build
-npm run export:matrix
-npm run e2e
+npx playwright test
 ```
 
-Expected: all pass.
+Expected: all green.
 
-**Commit:** `git commit -m "test: lock delivery promise demo and visual fidelity"`
+**Commit:** `git commit -m "test: lock delivery promise demo journey"`
 
-## Final handover gate
+## Final handoff checklist
 
-Do not call the implementation complete until:
-- domain tests are green;
-- E2E customer flows are green;
-- visual regression is reviewed against screenshots before baselines are accepted;
-- README contains all product decisions/assumptions;
-- matrix export exposes raw + rounded + displayed output;
-- no customer UI contains raw model terms, DPD, recommendation badges, cost-steering copy, or hidden demo controls.
+- [ ] All PRD/design product decisions preserved.
+- [ ] All relevant reference screenshots inspected during UI work.
+- [ ] No DPD or invented carriers.
+- [ ] No generic ecommerce redesign.
+- [ ] No raw model metadata exposed.
+- [ ] Reviewer matrix demonstrates raw -> policy -> customer transformation.
+- [ ] Basket material split and cutoff behavior work.
+- [ ] Home-vs-pickup hierarchy matches current Shop Apotheke.
+- [ ] Split shipment destination inheritance/override works.
+- [ ] Confirmed promise remains immutable.
+- [ ] Tracking and email show the same promise/ETA state.
+- [ ] Final README explains every important product decision and prototype assumption.
+- [ ] 15-minute walkthrough can be performed without hidden demo controls.
