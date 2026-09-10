@@ -1,0 +1,165 @@
+.split-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  background: var(--sa-peach-soft);
+  border-radius: 14px;
+  font-size: 14.5px;
+}
+
+.shipping-block {
+  background: var(--sa-surface);
+  border-radius: 14px;
+  padding: 18px 20px 20px;
+}
+
+.shipping-block + .shipping-block {
+  margin-top: 16px;
+}
+
+.shipping-block__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15.5px;
+  margin: 0 0 6px;
+}
+
+.shipping-block__options {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- shipment header (split only) ---------------------------------------- */
+
+.shipment-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sa-border);
+  margin-bottom: 6px;
+}
+
+.shipment-header__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shipment-header__label {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.shipment-header__thumbs {
+  display: flex;
+  gap: 5px;
+}
+
+.shipment-header__thumbs img {
+  border: 1px solid var(--sa-border);
+  border-radius: 6px;
+  background: var(--sa-white);
+}
+
+.shipment-header__count {
+  font-size: 13px;
+}
+
+.shipment-header__destination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 13.5px;
+}
+
+.shipment-header__change {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--sa-red);
+  font-family: inherit;
+  font-size: 13.5px;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* --- carrier option rows -------------------------------------------------- */
+
+.carrier-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--sa-border);
+  cursor: pointer;
+}
+
+.carrier-option:last-child {
+  border-bottom: 0;
+}
+
+.carrier-option__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.carrier-option__label {
+  font-size: 15.5px;
+}
+
+.carrier-option__promise {
+  font-size: 14px;
+}
+
+.carrier-option__cutoff {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.carrier-option__price {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* --- inline per-shipment override ---------------------------------------- */
+
+.method-override {
+  margin: 4px 0 12px;
+  padding: 14px 16px;
+  background: var(--sa-white);
+  border: 1px solid var(--sa-border);
+  border-radius: 12px;
+}
+
+.method-override__title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.method-override__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.method-override__pick {
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--sa-red);
+  font-family: inherit;
+  font-size: 13.5px;
+  text-decoration: underline;
+  cursor: pointer;
+}

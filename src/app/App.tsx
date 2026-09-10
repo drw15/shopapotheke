@@ -3,6 +3,7 @@ import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { ProductPage } from '../pages/ProductPage'
 import { BasketPage } from '../pages/BasketPage'
 import { CheckoutAddressPage } from '../pages/CheckoutAddressPage'
+import { CheckoutShippingPage } from '../pages/CheckoutShippingPage'
 import { CheckoutHeader } from '../components/layout/CheckoutHeader'
 
 function CheckoutPlaceholder({
@@ -30,10 +31,7 @@ export function AppRoutes() {
       <Route path="/basket" element={<BasketPage />} />
 
       <Route path="/checkout/address" element={<CheckoutAddressPage />} />
-      <Route
-        path="/checkout/shipping"
-        element={<CheckoutPlaceholder step="shipping" title="Bitte wählen Sie eine Versandoption" />}
-      />
+      <Route path="/checkout/shipping" element={<CheckoutShippingPage />} />
       <Route
         path="/checkout/payment"
         element={<CheckoutPlaceholder step="payment" title="Zahlungsart" />}

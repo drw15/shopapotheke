@@ -10,6 +10,7 @@ import './styles/layout.css'
 import './styles/product.css'
 import './styles/basket.css'
 import './styles/checkout.css'
+import './styles/checkout-shipping.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
