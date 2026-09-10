@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { ProductPage } from '../pages/ProductPage'
 import { CheckoutHeader } from '../components/layout/CheckoutHeader'
 
 function CheckoutPlaceholder({
@@ -23,7 +24,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/product/voltaren" replace />} />
-      <Route path="/product/:productId" element={<PlaceholderPage title="Produkt" />} />
+      <Route path="/product/:productId" element={<ProductPage />} />
       <Route path="/basket" element={<PlaceholderPage title="Ihr Warenkorb" />} />
 
       <Route

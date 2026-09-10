@@ -6,6 +6,7 @@ import { ShopProvider } from './state/ShopContext'
 import { DemoClockProvider } from './state/DemoClockContext'
 import './styles/global.css'
 import './styles/layout.css'
+import './styles/product.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
