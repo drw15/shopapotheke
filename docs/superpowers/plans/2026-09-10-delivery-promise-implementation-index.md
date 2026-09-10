@@ -2,14 +2,28 @@
 
 **Goal:** Implement the approved Shop Apotheke delivery-promise prototype without product or visual drift.
 
-**Architecture:** The work is split into three independently testable plans: (1) domain/model/promise logic, (2) pre-purchase UI and checkout, and (3) confirmation/tracking/email/handover. All plans consume the approved design in `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`.
+**Architecture:** The work is split into three independently testable plans: (1) domain/model/promise logic, (2) pre-purchase UI and checkout, and (3) confirmation/tracking/email/handover. All plans consume the approved design and PRD. Customer-facing implementation must use the supplied Shop Apotheke screenshots as the visual source of truth.
 
 **Tech stack:** React, TypeScript, Vite, React Router, Vitest, Testing Library, Playwright, date-fns, date-fns-tz, date-holidays, plain CSS.
 
+## Mandatory reading order before any implementation
+
+1. `docs/PRD.md` — product context, rationale, goals, non-goals, and decisions.
+2. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md` — approved behavioral/system design; authoritative for product behavior.
+3. `docs/reference/shop-apotheke-reference-screenshots/` — authoritative visual references. Inspect the relevant screenshots before modifying a customer-facing screen.
+4. This implementation index.
+5. The relevant execution plan:
+   - `docs/superpowers/plans/2026-09-10-delivery-promise-core-domain.md`
+   - `docs/superpowers/plans/2026-09-10-delivery-promise-prepurchase-ui.md`
+   - `docs/superpowers/plans/2026-09-10-delivery-promise-postpurchase-handover.md`
+6. `AGENTS.md` — non-drift rules for implementation agents.
+
+Earlier `docs/DESIGN.md` and `docs/SPEC.md` are historical drafts. They must not override the PRD or approved Superpowers design.
+
 ## Global Constraints
 
-- The approved design is authoritative. Earlier `docs/DESIGN.md` and `docs/SPEC.md` are drafts and must not override it.
 - Do not redesign Shop Apotheke. Match the provided screenshots and change only the delivery-promise behavior.
+- **Visual reference directory:** `docs/reference/shop-apotheke-reference-screenshots/`. If it is missing from the local checkout, stop before customer-facing UI work and resolve the repository state. Do not substitute a generic ecommerce interpretation.
 - Do not introduce DPD. Standard demo carriers are DHL and Hermes only.
 - Home vs pickup remains the first-level choice. Carrier/provider selection follows that choice.
 - NOW! remains outside the new prediction model. Preserve only its existing visual treatment if needed for fidelity.
@@ -24,6 +38,7 @@
 - Confirmed promise is immutable; current ETA is separate.
 - Tracking and delay email share the same order state.
 - No hidden demo-control UI.
+- Do not invent new product rules because they are easier to code. If a requirement appears ambiguous, check `docs/PRD.md` and the approved design first; if still unresolved, stop and ask rather than silently changing behavior.
 
 ## Locked visual contract
 
@@ -58,6 +73,19 @@ Additional visual rules:
 - Basket `Versand durch Shop Apotheke` panel uses `#FFECE6` and the existing red progress treatment.
 - Pickup modal: white, wide, search field across top, filter row, station list left, static map-style panel right.
 - No generic dashboard, giant ecommerce cards, green promo banners, recommendation badges, or invented carrier rows.
+
+## Screenshot-specific visual authority
+
+Implementation agents must use the reference set for these responsibilities:
+
+- PDP screenshots: placement and styling of delivery copy, postcode treatment, purchase card, and untouched NOW! treatment.
+- Basket screenshot: retail header, peach nav, basket width, `Versand durch Shop Apotheke` surface, product-row density, free-shipping panel.
+- Address/home/pickup screenshots: checkout stepper, address cards, home-vs-pickup hierarchy, radio/button treatment, footer/trust row.
+- Pickup station modal screenshot: modal proportions, search/filter layout, station list, provider badges, and map-side balance.
+- Carrier-options screenshot: DHL/Hermes row hierarchy, `Lieferzeitraum` placement, selected radio, order-summary column.
+- Email screenshot: email width, Shop Apotheke header proportions, peach surfaces, CTA and support/footer treatment.
+
+Do not treat the screenshots as optional inspiration. They are the visual acceptance reference.
 
 ## Plan order
 

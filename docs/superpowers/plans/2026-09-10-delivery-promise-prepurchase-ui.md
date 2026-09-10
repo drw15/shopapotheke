@@ -6,9 +6,21 @@
 
 **Tech stack:** React, TypeScript, React Router, Testing Library, Playwright, plain CSS using locked Shop Apotheke tokens.
 
+## Mandatory context before coding
+
+Read in this order:
+
+1. `docs/PRD.md`
+2. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
+3. `docs/reference/shop-apotheke-reference-screenshots/`
+4. `docs/superpowers/plans/2026-09-10-delivery-promise-implementation-index.md`
+5. this plan
+6. `AGENTS.md`
+
+Before implementing a customer-facing screen, inspect the screenshot(s) for that screen. The screenshots are authoritative for layout, hierarchy, spacing, colors, card shapes, radio treatment, and visual density. Do not make a generic Shop Apotheke-inspired page from memory.
+
 ## Global Constraints
 
-- Read the approved design and implementation index before coding.
 - Do not use Tailwind or a component library.
 - Use only the locked screenshot-derived visual tokens from the implementation index.
 - No DPD. DHL and Hermes only.
@@ -18,6 +30,20 @@
 - NOW! may remain as a static unchanged legacy block only where useful for fidelity; it is not wired into the new prediction engine.
 - No raw model metadata is rendered.
 - No hidden demo-control UI.
+- Do not use real personal data visible in the reference screenshots. Use generic fixture customer/address data.
+
+## Screenshot map
+
+Use the files in `docs/reference/shop-apotheke-reference-screenshots/` as follows (match by descriptive filename if numbering differs):
+
+- basket reference -> StoreHeader, category nav, basket density, shipping/free-shipping surface;
+- PDP postcode known/unknown references -> PDP purchase card, delivery line, postcode and NOW! placement;
+- checkout address form -> checkout header/stepper, field widths and page proportions;
+- checkout home selected -> `An eine Lieferadresse` card and CTA treatment;
+- checkout pickup selected -> first-level pickup selection hierarchy;
+- pickup station modal -> modal proportions, search/filter/station-list/map split;
+- checkout carrier options -> DHL/Hermes radio rows, `Lieferzeitraum`, right-hand total card;
+- email reference is not implemented in this plan but defines shared brand treatment for the post-purchase plan.
 
 ## Task 1: Build the visual shell and enforce design tokens
 
@@ -90,7 +116,9 @@ Expected failure: missing app/header modules.
 - UI source contains `DPD`, `Recommended`, `Best option`;
 - page/component source contains `q10BusinessDays`, `q90BusinessDays`, `confidenceScore`, `calibrationError`, or `supportN`.
 
-`AGENTS.md` must repeat the Global Constraints and exact visual token table. It must state that the approved design is authoritative and agents may not silently change product rules.
+`AGENTS.md` must repeat the Global Constraints, mandatory reading order, screenshot-reference directory, exact visual token table, and the rule that approved product behavior may not be silently changed.
+
+`docs/reference/visual-fidelity.md` must list every screenshot in `docs/reference/shop-apotheke-reference-screenshots/` and state which UI surface it governs.
 
 Run:
 
@@ -118,38 +146,22 @@ Expected: pass.
 - `src/styles/product.css`
 - `public/assets/products/*`
 
-**Behavior:**
-- No postcode -> `Lieferung in 1–3 Werktagen` + `Ihre PLZ`.
-- Supported postcode -> use pre-carrier home envelope from core domain.
-- One home carrier unsafe -> PDP broadens to fallback.
-- Calendar dates are customer-facing; raw days are not.
-- Cutoff appears only when domain says it changes the displayed promise.
-- Postcode changes silently recalculate. Do not show `Lieferzeit aktualisiert`.
+**Visual authority:** inspect the PDP postcode-known and postcode-unknown screenshots before coding. Match the purchase card proportions, delivery line, green text treatment, location row, quantity/CTA row, and static NOW! block. Do not create a new delivery-prediction card.
 
-**Failing test first:**
+**Behavioral requirements:**
+- before postcode: show `Lieferung in 1–3 Werktagen` and the postcode affordance;
+- after supported postcode: render the standard-home carrier envelope returned by the domain facade;
+- if a carrier falls back, the envelope may widen accordingly;
+- show `Bei Bestellung bis 19:00` only when the domain result says the cutoff changes the promise;
+- postcode changes recalculate silently;
+- NOW! remains visually separate and is not wired into prediction logic;
+- add-to-basket works with all five demo products.
 
-```tsx
-it('replaces fallback silently after a supported postcode', async () => {
-  const user = userEvent.setup()
-  renderProduct('voltaren', null)
-  expect(screen.getByText('Lieferung in 1–3 Werktagen')).toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name:/PLZ/i }))
-  await user.type(screen.getByLabelText('PLZ'), '50667')
-  await user.keyboard('{Enter}')
-  expect(screen.getByText(/Voraussichtliche Lieferung/)).toBeInTheDocument()
-  expect(screen.queryByText(/aktualisiert/i)).not.toBeInTheDocument()
-})
-```
-
-Expected failure: PDP components missing.
-
-**Visual implementation:**
-- Match screenshot order: price area -> divider -> delivery line + postcode -> shipping line -> optional legacy NOW! card -> quantity + red `In den Warenkorb`.
-- Purchase surface is `--sa-surface`.
-- Availability/delivery green is `--sa-green`.
-- CTA is pill-shaped `--sa-red`.
-- Do not add new prediction card or explanation panel.
-- Download current public product images and bundle locally. If exact image is unavailable, use neutral white placeholder with text; do not generate substitute art.
+**Test cases:**
+- precise postcode renders calendar window;
+- low-confidence/support scenario renders fallback;
+- unknown postcode renders fallback;
+- raw model metadata does not appear in DOM.
 
 Run:
 
@@ -159,41 +171,39 @@ npm run check:design
 npm run build
 ```
 
-**Commit:** `git commit -m "feat: add postcode-aware product promise UI"`
+Expected: pass.
 
-## Task 3: Build the Shop Apotheke basket and material-split treatment
+**Visual verification:** Playwright screenshot at 1440×900. Compare side-by-side to the relevant PDP reference screenshots before accepting.
+
+**Commit:** `git commit -m "feat: add postcode-aware PDP promise"`
+
+## Task 3: Build basket promise and material-split presentation
 
 **Create:**
-- `src/components/basket/BasketItem.tsx`
+- `src/components/basket/BasketItemRow.tsx`
 - `src/components/basket/BasketDeliverySummary.tsx`
-- `src/components/basket/BasketShipmentSummary.tsx`
-- `src/components/basket/ProductSuggestionCard.tsx`
+- `src/components/basket/BasketShipmentPreview.tsx`
 - `src/pages/BasketPage.tsx`
 - `src/pages/BasketPage.test.tsx`
 - `src/styles/basket.css`
 
-**Failing test first:**
+**Visual authority:** inspect the basket reference before coding. Preserve the retail header, peach category nav, `Versand durch Shop Apotheke` surface, product-row density and CTA treatment.
 
-```tsx
-it('shows a material split with product names but no fulfilment internals', () => {
-  renderBasket({ productIds:['voltaren','vitamin-d3','vagisan'], postcode:'22083' })
-  expect(screen.getByText('Ihre Bestellung kommt in 2 Lieferungen')).toBeInTheDocument()
-  expect(screen.getByText(/Voltaren/)).toBeInTheDocument()
-  expect(screen.getByText(/Vagisan/)).toBeInTheDocument()
-  expect(screen.queryByText(/Sevenum/i)).not.toBeInTheDocument()
-})
-```
+**Behavioral requirements:**
+- non-material split -> one simple overall promise envelope;
+- material split -> `Ihre Bestellung kommt in 2 Lieferungen`;
+- basket shipment preview uses compact thumbnails + product names;
+- show cutoff only on the shipment for which crossing it changes promise;
+- no carrier controls in basket;
+- no warehouse/fulfilment labels;
+- the factual cutoff is the only conversion nudge; no urgency badge/copy.
 
-Expected failure: basket page missing.
-
-**Visual implementation:**
-- Match retail screenshot: `Ihr Warenkorb (n)` centered content.
-- Recreate `Versand durch Shop Apotheke` panel with `--sa-peach-soft`, rounded 16px, progress bar in red.
-- Product rows show image, name, pack/PZN, availability, quantity, delete icon, red price.
-- If split is non-material, show one compact delivery summary.
-- If split is material, show `Ihre Bestellung kommt in 2 Lieferungen`; each shipment shows small thumbnails + product names + calendar promise. Cutoff only if meaningful for that shipment.
-- Do not repeat prices/quantity inside split summary.
-- Keep `Gratis Versand? Einfach Warenkorb füllen` recommendation row to let reviewers add demo products naturally.
+**Test cases:**
+- non-material split hidden;
+- material one-delivery-day split shown;
+- Friday-vs-Monday split shown;
+- shipment product names and thumbnails rendered when material;
+- carrier choice absent from basket.
 
 Run:
 
@@ -203,137 +213,133 @@ npm run check:design
 npm run build
 ```
 
-**Commit:** `git commit -m "feat: add material split basket UI"`
+Expected: pass.
 
-## Task 4: Build checkout address and pickup selection
+**Visual verification:** capture 1440×900 basket screenshot and compare to the basket reference for layout density/header/surface treatment.
+
+**Commit:** `git commit -m "feat: add material basket delivery split"`
+
+## Task 4: Build checkout address method and pickup-station flow
 
 **Create:**
+- `src/domain/checkout/types.ts`
 - `src/state/CheckoutContext.tsx`
-- `src/data/demoAddresses.ts`
-- `src/data/pickupLocations.ts`
-- `src/components/checkout/DeliveryMethodSelector.tsx`
+- `src/components/checkout/AddressCard.tsx`
+- `src/components/checkout/DeliveryMethodChoice.tsx`
 - `src/components/checkout/PickupStationModal.tsx`
-- `src/components/checkout/PickupStationModal.test.tsx`
 - `src/pages/CheckoutAddressPage.tsx`
 - `src/pages/CheckoutAddressPage.test.tsx`
-- `src/styles/checkout.css`
+- `src/styles/checkout-address.css`
 
-**State interface:**
+**Visual authority:** inspect checkout address-form, home-selected, pickup-selected, and pickup-station-modal screenshots. Preserve the existing hierarchy and modal proportions.
 
-```ts
-export type Destination =
-  | { method:'home'; addressId:string }
-  | { method:'pickup'; pickupLocationId:string }
+**Behavioral requirements:**
+- first-level choice is home vs pickup;
+- home uses a generic demo address, not the real address in screenshots;
+- pickup opens the existing-style station selector;
+- station list contains demo DHL/Hermes locations only;
+- static map-style panel is visual only; no map SDK;
+- selecting a station stores method/provider/location for checkout;
+- pre-purchase promise is recalculated silently when postcode/destination context changes.
 
-export type CheckoutState = {
-  orderDestination: Destination
-  shipmentDestinations: Record<string, Destination>
-}
-```
-
-**Failing test first:**
-
-```tsx
-it('keeps home and pickup as first-level choices', async () => {
-  renderCheckoutAddress('22083')
-  expect(screen.getByText('An eine Lieferadresse')).toBeInTheDocument()
-  expect(screen.getByText('An einen Abholort')).toBeInTheDocument()
-  expect(screen.queryByText('Standard mit DHL')).not.toBeInTheDocument()
-})
-```
-
-Expected failure: page missing.
-
-**Visual implementation:**
-- Match screenshot title `Wohin sollen wir Ihre Bestellung liefern?`.
-- Left: address section then pickup section. Right: `Weitere Lieferoptionen` card.
-- Use generic demo identity/address, never the user's screenshot address.
-- Pickup modal mirrors screenshot: wide white overlay, title, full-width search input, filters, station list left, static map-style panel right.
-- No live map integration.
-- Create one fictional Hermes PaketShop, one DHL Paketshop/Filiale, one DHL Packstation per supported postcode.
-
-Run tests/build/design check.
-
-**Commit:** `git commit -m "feat: add checkout destination selection"`
-
-## Task 5: Build single and split shipping-option checkout
-
-**Create:**
-- `src/domain/checkout/deliveryOptions.ts`
-- `src/domain/checkout/deliveryOptions.test.ts`
-- `src/components/checkout/CarrierOption.tsx`
-- `src/components/checkout/ShipmentShippingCard.tsx`
-- `src/components/checkout/ShipmentShippingCard.test.tsx`
-- `src/pages/CheckoutShippingPage.tsx`
-- `src/pages/CheckoutShippingPage.test.tsx`
-
-**Interface:**
-
-```ts
-export type ShippingOption = {
-  id:string
-  method:'home'|'pickup'
-  provider:'dhl'|'hermes'
-  label:string
-  destinationLabel:string
-  promise:CustomerPromise
-}
-
-export function getDeliveryOptions(input:{ shipment:PlannedShipment; destination:Destination; postcode:string; now:Date }): ShippingOption[]
-```
-
-**Rules:**
-- Home -> DHL and Hermes home options.
-- Pickup -> selected station/provider option only.
-- Split shipments inherit order-level destination at initialization.
-- `Lieferart ändern` expands inline for the selected shipment only.
-- Changing shipment 1 must not mutate shipment 2.
-
-**Failing test first:**
-
-```tsx
-it('changes only the selected shipment destination', async () => {
-  const user = userEvent.setup()
-  renderSplitShipping()
-  const buttons = screen.getAllByRole('button', { name:'Lieferart ändern' })
-  await user.click(buttons[0])
-  await user.click(screen.getByLabelText('An einen Abholort'))
-  selectFirstHermesPickup(user)
-  expect(screen.getByTestId('shipment-1-destination')).toHaveTextContent('Abholort')
-  expect(screen.getByTestId('shipment-2-destination')).toHaveTextContent('Nach Hause')
-})
-```
-
-Expected failure: split shipping card missing.
-
-**Visual implementation:**
-- Single shipment keeps screenshot title `Bitte wählen Sie eine Versandoption`.
-- Main left shipping card + right totals summary; preserve ~565px / ~398px relation.
-- Carrier rows: radio, `Standard mit DHL` / `Standard mit HERMES`, green `Lieferzeitraum`, `€ 0,00`.
-- Split: show `Ihre Bestellung kommt in 2 Lieferungen`, then two existing-style shipping blocks stacked in same main column.
-- Shipment header uses tiny thumbnails + `2 Artikel` / `1 Artikel`, no repeated names.
-- Show inherited destination and `Lieferart ändern`.
-- `Lieferart ändern` reuses home/pickup hierarchy inline.
-- No new wizard, no recommendation badge, no DPD.
+**Test cases:**
+- home and pickup are first-level radio choices;
+- pickup modal opens;
+- selecting station updates checkout context;
+- no flat `DHL Home / Hermes PaketShop` peer list exists.
 
 Run:
 
 ```bash
-npm run test:run -- src/domain/checkout src/components/checkout src/pages/CheckoutShippingPage.test.tsx
+npm run test:run -- src/pages/CheckoutAddressPage.test.tsx
 npm run check:design
 npm run build
 ```
 
-**Commit:** `git commit -m "feat: add split shipment shipping checkout"`
+Expected: pass.
 
-## Pre-purchase completion gate
+**Visual verification:** screenshots for home-selected, pickup-selected, and open modal at 1440×900; compare with the corresponding references.
 
-At 1440x900 manually compare PDP, basket, address, pickup modal, and shipping checkout against the provided screenshots. Then run:
+**Commit:** `git commit -m "feat: add checkout destination flow"`
+
+## Task 5: Build single- and split-shipment Versand
+
+**Create:**
+- `src/domain/checkout/buildShippingView.ts`
+- `src/domain/checkout/buildShippingView.test.ts`
+- `src/components/checkout/ShipmentHeader.tsx`
+- `src/components/checkout/CarrierOptionRow.tsx`
+- `src/components/checkout/ShipmentShippingBlock.tsx`
+- `src/components/checkout/InlineMethodOverride.tsx`
+- `src/pages/CheckoutShippingPage.tsx`
+- `src/pages/CheckoutShippingPage.test.tsx`
+- `src/styles/checkout-shipping.css`
+
+**Visual authority:** inspect the checkout carrier-options screenshot before coding. A split checkout must look like the existing shipping-options block repeated per shipment; do not invent a wizard or dashboard.
+
+**Interfaces:**
+
+```ts
+export type ShipmentShippingView = {
+  shipmentId:string
+  itemCount:number
+  thumbnails:string[]
+  method:'home'|'pickup'
+  destinationLabel:string
+  options:Array<{
+    provider:'dhl'|'hermes'
+    label:string
+    promiseText:string
+    cutoffText?:string
+  }>
+}
+
+export function buildShippingView(input: CheckoutShippingInput): ShipmentShippingView[]
+```
+
+**Behavioral requirements:**
+- single shipment preserves current DHL/Hermes radio-row pattern;
+- split order shows both shipment blocks on the same `Versand` step;
+- header uses tiny thumbnails + item count only;
+- both shipments inherit order-level destination initially;
+- `Lieferart ändern` expands inline for only the selected shipment;
+- changing shipment 1 to pickup must not change shipment 2;
+- home rows show DHL/Hermes predictions specific to home service;
+- pickup uses the selected pickup service/location prediction;
+- most DHL/Hermes raw differences round to the same customer window; only fixture-defined differences become visible;
+- no PUDO recommendation/cost messaging.
+
+**Test cases:**
+- one shipment -> one shipping block;
+- split -> two blocks visible simultaneously;
+- inheritance works;
+- per-shipment override is isolated;
+- `Lieferzeitraum` is visible under carrier labels;
+- no DPD/recommendation copy/raw-model terms.
+
+Run:
+
+```bash
+npm run test:run -- src/domain/checkout/buildShippingView.test.ts src/pages/CheckoutShippingPage.test.tsx
+npm run check:design
+npm run build
+```
+
+Expected: pass.
+
+**Visual verification:** capture single-shipment and split-shipment `Versand` at 1440×900. Compare single shipment directly to the carrier-options reference; ensure split version is a minimal extension of that same structure.
+
+**Commit:** `git commit -m "feat: add carrier-aware split shipping checkout"`
+
+## Final pre-purchase gate
+
+Before moving to the post-purchase plan, run:
 
 ```bash
 npm run test:run
 npm run check:design
 npm run build
+npx playwright test
 ```
 
-Do not proceed if tests are green but the pages visually drift into a generic ecommerce design.
+Manually review the reference screenshot directory and compare every implemented customer-facing surface. Do not approve visual baselines until the implementation visibly matches the reference language and structure.
