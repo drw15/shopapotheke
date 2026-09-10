@@ -86,3 +86,62 @@ honestly.
 
 **Consequence.** Demo tracking orders are generated relative to the current
 date rather than fixed to calendar dates, so they never go stale.
+
+---
+
+## 4. A second external-fulfilment product carries the split demonstration
+
+**Decision.** The demo catalogue gains `bepanthen`: a sixth product in the
+fictional external fulfilment group that **does** have model coverage. Vagisan
+stays external and stays outside the model.
+
+**Context.** The approved design names Voltaren + Vitamin D3 + Vagisan as the
+canonical split basket. Building the basket revealed that this basket can never
+show a material split. Vagisan was the only product that caused a split, and it
+is also the only product with no model coverage, so the second shipment always
+resolved to the broad fallback. With no date on one side there is nothing to
+compare, and the materiality rule correctly refused to claim that one shipment
+arrives earlier - so the split silently never appeared.
+
+**Why a second product.** The prototype needs to demonstrate two different
+ideas that had been accidentally entangled in one fixture:
+
+- *fallback* - the model cannot predict this product at all;
+- *split* - this product ships separately from the rest of the order.
+
+Vagisan now demonstrates the first cleanly on its own product page. Bepanthen
+demonstrates the second, with both shipments carrying real dates so the earlier
+one is genuinely earlier.
+
+**Rejected.** Ranking a precise promise against a fallback by treating the
+fallback as its worst case. It would have needed no new fixture, but the
+comparison would rest on a value the exposure gates had just rejected - telling
+the customer one parcel arrives sooner on the strength of a number we do not
+trust.
+
+**Consequence.** The external product's offset is tuned so the split is
+material on some lanes and not on others. Köln, Frankfurt and Hamburg reveal
+the split; Berlin and München round to identical windows and keep one simple
+promise. The same two products therefore demonstrate both halves of the rule
+depending only on the postcode.
+
+**Production validation.** Real fulfilment grouping and cross-location lead
+times would come from the OMS and the prediction service, not from a fixture.
+
+---
+
+## 5. A shared cutoff does not by itself make a split material
+
+**Decision.** The cutoff clause of the materiality rule fires only when the
+cutoff distinguishes the shipments - some are cutoff-sensitive and others are
+not. When every shipment shares the same cutoff and the same window, the basket
+keeps one simple promise.
+
+**Why.** The rule exists so the customer can act on a difference. If both
+parcels arrive in the same window and both are affected by the same cutoff,
+splitting the display shows two identical rows and adds complexity without
+adding information. The original reading fired on every basket where a cutoff
+was visible, which would have made the split effectively permanent.
+
+**Production validation.** Worth confirming with usability testing that
+customers read the split as useful rather than as a warning.

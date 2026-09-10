@@ -107,6 +107,12 @@ const PRODUCT_ADJUSTMENT: Record<string, [number, number]> = {
   'vitamin-d3': [0.03, 0.05],
   fenistil: [-0.02, 0.03],
   ibu: [0.04, 0.07],
+  // Ships from the fictional external location rather than the main demo
+  // group. The offset is small enough that it rounds away on the slower
+  // lanes but crosses a day boundary on the fast ones, so a mixed basket is
+  // materially split in some places and not in others - which is the point:
+  // the split is revealed only where it tells the customer something.
+  bepanthen: [0.16, 0.3],
 }
 
 /**

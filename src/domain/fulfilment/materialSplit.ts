@@ -63,8 +63,14 @@ export function isMaterialSplit(input: MaterialSplitInput): boolean {
 
   if (deliveryDaysBetween(earliest, last, input.postcode) >= 1) return true
 
-  // An actionable cutoff on the shipment that arrives first is itself a reason
-  // to show the split: the customer can still change that outcome today.
-  const earliestPromise = precise.find((promise) => promise.maxDate === earliest)
-  return Boolean(earliestPromise?.cutoffText)
+  // An actionable cutoff can also make a split worth showing, but only when it
+  // actually distinguishes the shipments. If every parcel arrives in the same
+  // window and shares the same cutoff, there is nothing for the customer to act
+  // on and the basket should stay simple.
+  const withCutoff = precise.filter((promise) => Boolean(promise.cutoffText))
+  if (withCutoff.length === 0 || withCutoff.length === precise.length) return false
+
+  // Some but not all shipments are cutoff-sensitive: the customer can still
+  // change the outcome for part of the order today.
+  return withCutoff.some((promise) => promise.maxDate === earliest)
 }

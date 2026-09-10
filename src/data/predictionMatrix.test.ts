@@ -12,9 +12,10 @@ const passesGates = (p: { confidenceScore: number; calibrationError: number; sup
   p.supportN >= PROMISE_POLICY.minSupportN
 
 describe('demo catalogue', () => {
-  it('uses exactly the five PRD products', () => {
-    expect(PRODUCTS).toHaveLength(5)
+  it('uses the four PRD demo products plus the two external-fulfilment cases', () => {
+    expect(PRODUCTS).toHaveLength(6)
     expect(PRODUCTS.map((p) => p.id).sort()).toEqual([
+      'bepanthen',
       'fenistil',
       'ibu',
       'vagisan',
@@ -23,11 +24,19 @@ describe('demo catalogue', () => {
     ])
   })
 
-  it('keeps exactly one fictional external-fulfilment product outside the model', () => {
+  it('keeps two fictional external-fulfilment products for two different cases', () => {
     const external = PRODUCTS.filter((p) => p.fulfilmentGroup === 'external-demo')
-    expect(external).toHaveLength(1)
-    expect(external[0].id).toBe('vagisan')
-    expect(external[0].modelEligible).toBe(false)
+    expect(external.map((p) => p.id).sort()).toEqual(['bepanthen', 'vagisan'])
+  })
+
+  it('keeps exactly one product with no model coverage at all', () => {
+    // Vagisan is the pure unsupported-product fallback case. The other
+    // external product is predictable and exists so that a split can be
+    // material - otherwise the only splitting product was also unpredictable
+    // and the canonical split basket could never satisfy the materiality rule.
+    const ineligible = PRODUCTS.filter((p) => !p.modelEligible)
+    expect(ineligible).toHaveLength(1)
+    expect(ineligible[0].id).toBe('vagisan')
   })
 
   it('uses exactly the five PRD postcodes', () => {

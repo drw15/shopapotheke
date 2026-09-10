@@ -7,6 +7,7 @@ import { DemoClockProvider } from './state/DemoClockContext'
 import './styles/global.css'
 import './styles/layout.css'
 import './styles/product.css'
+import './styles/basket.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

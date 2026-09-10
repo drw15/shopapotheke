@@ -65,9 +65,29 @@ export const PRODUCTS: Product[] = [
     priceCents: 1139,
     basePriceLabel: '455,60 EUR / 1 kg',
     image: '/assets/products/vagisan.svg',
-    // Fictional external assignment: drives fallback + split demonstrations.
+    // Fictional external assignment with no model coverage. This is the pure
+    // unsupported-product fallback case.
     fulfilmentGroup: 'external-demo',
     modelEligible: false,
+  },
+  {
+    id: 'bepanthen',
+    name: 'Bepanthen Wund- und Heilsalbe',
+    packSize: 'Packungsgröße: 50 g | Salbe',
+    pzn: '01578818',
+    priceCents: 1049,
+    strikePriceCents: 1299,
+    basePriceLabel: '209,80 EUR / 1 kg',
+    image: '/assets/products/bepanthen.svg',
+    // Fictional external assignment WITH model coverage.
+    //
+    // This separates the two ideas the demo needs to show independently:
+    // Vagisan demonstrates a product the model cannot predict, while this one
+    // demonstrates a split driven purely by fulfilment. Without it the only
+    // splitting product was also unpredictable, so the canonical split basket
+    // could never satisfy the materiality rule and the split never appeared.
+    fulfilmentGroup: 'external-demo',
+    modelEligible: true,
   },
 ]
 
