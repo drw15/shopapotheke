@@ -2,23 +2,40 @@
 
 **Goal:** Implement the approved Shop Apotheke delivery-promise prototype without product or visual drift.
 
-**Architecture:** The work is split into three independently testable plans: (1) domain/model/promise logic, (2) pre-purchase UI and checkout, and (3) confirmation/tracking/email/handover. All plans consume the approved design and PRD. Customer-facing implementation must use the supplied Shop Apotheke screenshots as the visual source of truth.
+**Architecture:** The work is split into three independently testable plans: (1) domain/model/promise logic, (2) pre-purchase UI and checkout, and (3) confirmation/tracking/email/handover. All plans consume the approved design, product decision log, PRD, and implementation handoff. Customer-facing implementation must use the supplied Shop Apotheke screenshots as the visual source of truth.
 
 **Tech stack:** React, TypeScript, Vite, React Router, Vitest, Testing Library, Playwright, date-fns, date-fns-tz, date-holidays, plain CSS.
 
 ## Mandatory reading order before any implementation
 
-1. `docs/PRD.md` — product context, rationale, goals, non-goals, and decisions.
-2. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md` — approved behavioral/system design; authoritative for product behavior.
-3. `docs/reference/shop-apotheke-reference-screenshots/` — authoritative visual references. Inspect the relevant screenshots before modifying a customer-facing screen.
-4. This implementation index.
-5. The relevant execution plan:
+1. `docs/PRD.md` — business/product context, goals, non-goals, journey, and reviewer story.
+2. `docs/PRODUCT_DECISIONS.md` — explicit approved decisions, rationale, rejected alternatives, prototype assumptions, and production-validation notes.
+3. `docs/IMPLEMENTATION_HANDOFF.md` — engineering/agent explanation of the intent behind the design and the details most likely to be lost during implementation.
+4. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md` — approved behavioral/system design; authoritative for implementation behavior.
+5. `docs/reference/shop-apotheke-reference-screenshots/` — authoritative visual references. Inspect the relevant screenshots before modifying a customer-facing screen.
+6. This implementation index.
+7. The relevant execution plan:
    - `docs/superpowers/plans/2026-09-10-delivery-promise-core-domain.md`
    - `docs/superpowers/plans/2026-09-10-delivery-promise-prepurchase-ui.md`
    - `docs/superpowers/plans/2026-09-10-delivery-promise-postpurchase-handover.md`
-6. `AGENTS.md` — non-drift rules for implementation agents.
+8. `AGENTS.md` — non-drift rules for implementation agents.
 
-Earlier `docs/DESIGN.md` and `docs/SPEC.md` are historical drafts. They must not override the PRD or approved Superpowers design.
+Earlier `docs/DESIGN.md` and `docs/SPEC.md` are historical drafts. They must not override the approved Superpowers design, `docs/PRODUCT_DECISIONS.md`, the PRD, or the handoff.
+
+## Source-of-truth hierarchy
+
+For product behavior and implementation decisions:
+
+1. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
+2. `docs/PRODUCT_DECISIONS.md`
+3. `docs/PRD.md`
+4. `docs/IMPLEMENTATION_HANDOFF.md`
+5. this implementation index and the relevant phase plan
+6. `AGENTS.md`
+
+For visual behavior, the screenshots in `docs/reference/shop-apotheke-reference-screenshots/` are authoritative for layout, hierarchy, spacing, density, and styling.
+
+If two approved sources appear to conflict, do not pick the easiest implementation. Stop and reconcile the requirement before coding.
 
 ## Global Constraints
 
@@ -38,7 +55,7 @@ Earlier `docs/DESIGN.md` and `docs/SPEC.md` are historical drafts. They must not
 - Confirmed promise is immutable; current ETA is separate.
 - Tracking and delay email share the same order state.
 - No hidden demo-control UI.
-- Do not invent new product rules because they are easier to code. If a requirement appears ambiguous, check `docs/PRD.md` and the approved design first; if still unresolved, stop and ask rather than silently changing behavior.
+- Do not invent new product rules because they are easier to code. If a requirement appears ambiguous, check the approved design and `docs/PRODUCT_DECISIONS.md` first; if still unresolved, stop and ask rather than silently changing behavior.
 
 ## Locked visual contract
 
@@ -93,4 +110,4 @@ Do not treat the screenshots as optional inspiration. They are the visual accept
 2. `docs/superpowers/plans/2026-09-10-delivery-promise-prepurchase-ui.md`
 3. `docs/superpowers/plans/2026-09-10-delivery-promise-postpurchase-handover.md`
 
-Each plan must be completed and green before starting the next. If an implementation agent finds a product or visual requirement that conflicts with the approved design, stop and update the design first rather than silently changing behavior.
+Each plan must be completed and green before starting the next. If an implementation agent finds a product or visual requirement that conflicts with the approved design or `docs/PRODUCT_DECISIONS.md`, stop and reconcile the requirement first rather than silently changing behavior.

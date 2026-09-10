@@ -7,10 +7,12 @@ This repository is a take-home product prototype. The goal is **not** to invent 
 Before writing or modifying code, read:
 
 1. `docs/PRD.md`
-2. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
-3. `docs/reference/shop-apotheke-reference-screenshots/`
-4. `docs/superpowers/plans/2026-09-10-delivery-promise-implementation-index.md`
-5. the relevant execution plan under `docs/superpowers/plans/`
+2. `docs/PRODUCT_DECISIONS.md`
+3. `docs/IMPLEMENTATION_HANDOFF.md`
+4. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
+5. `docs/reference/shop-apotheke-reference-screenshots/`
+6. `docs/superpowers/plans/2026-09-10-delivery-promise-implementation-index.md`
+7. the relevant execution plan under `docs/superpowers/plans/`
 
 If a customer-facing screen is being implemented, inspect the relevant screenshot files before coding.
 
@@ -19,9 +21,13 @@ If a customer-facing screen is being implemented, inspect the relevant screensho
 For product behavior, the order of authority is:
 
 1. `docs/superpowers/specs/2026-09-10-delivery-promise-design.md`
-2. `docs/PRD.md`
-3. the implementation plan files
-4. older `docs/DESIGN.md` and `docs/SPEC.md` only as historical context
+2. `docs/PRODUCT_DECISIONS.md`
+3. `docs/PRD.md`
+4. `docs/IMPLEMENTATION_HANDOFF.md`
+5. the implementation plan files
+6. older `docs/DESIGN.md` and `docs/SPEC.md` only as historical context
+
+`docs/PRODUCT_DECISIONS.md` is the explicit decision log. It records not only what was chosen, but why, what alternatives were rejected, what is prototype-only, and what would require production validation. Do not implement a technically easier alternative if it conflicts with that file.
 
 If documents conflict, do not silently choose the easiest option. Follow the hierarchy above. If an ambiguity remains, stop and ask.
 
