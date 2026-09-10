@@ -1,0 +1,226 @@
+/* --- wordmark ------------------------------------------------------------ */
+
+.sa-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sa-red);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.sa-wordmark__glyph {
+  transform: rotate(-8deg);
+}
+
+/* --- retail header ------------------------------------------------------- */
+
+.store-header {
+  background: var(--sa-white);
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.store-header__main {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 84px;
+}
+
+.store-header__brand {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.store-header__search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  max-width: 470px;
+  height: 52px;
+  border: 1px solid var(--sa-red);
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--sa-white);
+}
+
+.store-header__search input {
+  flex: 1;
+  height: 100%;
+  border: 0;
+  outline: none;
+  padding: 0 20px;
+  font-size: 15px;
+  color: var(--sa-text);
+  background: transparent;
+}
+
+.store-header__search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 24px;
+  border: 0;
+  background: var(--sa-red);
+  color: var(--sa-white);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.store-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-left: auto;
+}
+
+.store-header__action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--sa-text);
+  text-decoration: none;
+  position: relative;
+}
+
+.store-header__badge {
+  position: absolute;
+  top: -4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--dhl-yellow);
+  color: var(--sa-text);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.store-header__nav {
+  background: var(--sa-peach-nav);
+}
+
+.store-header__nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  height: 48px;
+  font-size: 14.5px;
+}
+
+.store-header__categories {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  padding-right: 22px;
+  border-right: 1px solid rgba(27, 28, 27, 0.18);
+}
+
+.store-header__nav a {
+  color: var(--sa-text);
+  text-decoration: none;
+}
+
+/* --- checkout header ----------------------------------------------------- */
+
+.checkout-header {
+  background: var(--sa-white);
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.checkout-header__inner {
+  display: flex;
+  align-items: center;
+  height: 88px;
+}
+
+.checkout-header__brand {
+  text-decoration: none;
+}
+
+.checkout-stepper {
+  display: flex;
+  align-items: flex-start;
+  margin-left: auto;
+}
+
+.checkout-stepper__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--sa-text);
+  opacity: 0.55;
+  width: 62px;
+}
+
+.checkout-stepper__step--active {
+  opacity: 1;
+  color: var(--sa-red);
+  font-weight: 700;
+}
+
+.checkout-stepper__marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sa-border);
+  color: var(--sa-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.checkout-stepper__step--active .checkout-stepper__marker {
+  background: var(--sa-red);
+  color: var(--sa-white);
+}
+
+.checkout-stepper__rule {
+  width: 22px;
+  height: 1px;
+  background: var(--sa-border);
+  margin-top: 13px;
+}
+
+/* --- trust row / footer -------------------------------------------------- */
+
+.sa-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding: 20px 26px;
+  margin: 40px 0 16px;
+  background: var(--sa-white);
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.sa-trust-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sa-footer {
+  padding: 0 0 40px;
+  font-size: 12.5px;
+  color: var(--sa-text);
+  opacity: 0.7;
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
