@@ -3,19 +3,23 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AppRoutes } from './app/App'
 import { ShopProvider } from './state/ShopContext'
+import { CheckoutProvider } from './state/CheckoutContext'
 import { DemoClockProvider } from './state/DemoClockContext'
 import './styles/global.css'
 import './styles/layout.css'
 import './styles/product.css'
 import './styles/basket.css'
+import './styles/checkout.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DemoClockProvider>
       <ShopProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <CheckoutProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </CheckoutProvider>
       </ShopProvider>
     </DemoClockProvider>
   </StrictMode>,

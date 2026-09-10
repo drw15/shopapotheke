@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { ProductPage } from '../pages/ProductPage'
 import { BasketPage } from '../pages/BasketPage'
+import { CheckoutAddressPage } from '../pages/CheckoutAddressPage'
 import { CheckoutHeader } from '../components/layout/CheckoutHeader'
 
 function CheckoutPlaceholder({
@@ -28,10 +29,7 @@ export function AppRoutes() {
       <Route path="/product/:productId" element={<ProductPage />} />
       <Route path="/basket" element={<BasketPage />} />
 
-      <Route
-        path="/checkout/address"
-        element={<CheckoutPlaceholder step="address" title="Ihre Rechnungsadresse" />}
-      />
+      <Route path="/checkout/address" element={<CheckoutAddressPage />} />
       <Route
         path="/checkout/shipping"
         element={<CheckoutPlaceholder step="shipping" title="Bitte wählen Sie eine Versandoption" />}

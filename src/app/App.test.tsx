@@ -3,15 +3,18 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { AppRoutes } from './App'
 import { ShopProvider } from '../state/ShopContext'
+import { CheckoutProvider } from '../state/CheckoutContext'
 import { DemoClockProvider } from '../state/DemoClockContext'
 
 const renderAt = (path: string) =>
   render(
     <DemoClockProvider now={new Date('2026-09-10T12:00:00Z')}>
-      <ShopProvider>
-        <MemoryRouter initialEntries={[path]}>
-          <AppRoutes />
-        </MemoryRouter>
+      <ShopProvider initialPostcode="22083">
+        <CheckoutProvider>
+          <MemoryRouter initialEntries={[path]}>
+            <AppRoutes />
+          </MemoryRouter>
+        </CheckoutProvider>
       </ShopProvider>
     </DemoClockProvider>,
   )
