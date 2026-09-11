@@ -1,8 +1,11 @@
 import { isDeliveryDay } from '../calendar/businessCalendar'
+import { fallbackDates } from '../promise/buildPromise'
 import type { CustomerPromise } from '../promise/types'
 
 export type MaterialSplitInput = {
   postcode: string
+  /** Needed to resolve a fallback shipment's 1-3 Werktage into real dates. */
+  now: Date
   promises: CustomerPromise[]
 }
 
@@ -32,15 +35,12 @@ function deliveryDaysBetween(fromIso: string, toIso: string, postcode: string): 
  * Decide whether a split shipment is worth showing the customer.
  *
  * The backend having two fulfilment groups is not itself a reason to complicate
- * the basket. The split is surfaced only when it carries information the
- * customer can use:
+ * the basket. The split is surfaced only when one shipment's latest promised
+ * date is at least one eligible delivery day earlier than another's - that is,
+ * when part of the order genuinely arrives sooner.
  *
- *  1. the earlier shipment's latest promise is at least one eligible delivery
- *     day earlier than the later shipment's; or
- *  2. an actionable cutoff changes the earlier shipment's promise.
- *
- * Friday versus Monday qualifies under rule 1 even though it is a single
- * business-day step, because the customer experiences three calendar days.
+ * Friday versus Monday qualifies even though it is a single business-day step,
+ * because the customer experiences three calendar days.
  *
  * Latest promised dates are compared rather than earliest: two overlapping
  * windows that end on the same day do not give the customer anything to act on.
@@ -48,29 +48,19 @@ function deliveryDaysBetween(fromIso: string, toIso: string, postcode: string): 
 export function isMaterialSplit(input: MaterialSplitInput): boolean {
   if (input.promises.length < 2) return false
 
-  const precise = input.promises.filter(
-    (promise): promise is Extract<CustomerPromise, { kind: 'precise' }> =>
-      promise.kind === 'precise',
+  // Every shipment has a delivery window. A precise promise carries calendar
+  // dates directly; a fallback shipment is still promising 1-3 Werktage, which
+  // resolves to dates from the same dispatch day and calendar. Both can be
+  // compared, so a mixed basket is not exempt from the materiality question.
+  const latestDates = input.promises.map((promise) =>
+    promise.kind === 'precise'
+      ? promise.maxDate
+      : fallbackDates(input.now, input.postcode).maxDate,
   )
 
-  // A precise shipment and a broad fallback cannot be honestly ranked against
-  // each other, so the basket stays simple.
-  if (precise.length !== input.promises.length) return false
+  const sorted = [...latestDates].sort()
+  const earliest = sorted[0]
+  const last = sorted[sorted.length - 1]
 
-  const latest = precise.map((promise) => promise.maxDate).sort()
-  const earliest = latest[0]
-  const last = latest[latest.length - 1]
-
-  if (deliveryDaysBetween(earliest, last, input.postcode) >= 1) return true
-
-  // An actionable cutoff can also make a split worth showing, but only when it
-  // actually distinguishes the shipments. If every parcel arrives in the same
-  // window and shares the same cutoff, there is nothing for the customer to act
-  // on and the basket should stay simple.
-  const withCutoff = precise.filter((promise) => Boolean(promise.cutoffText))
-  if (withCutoff.length === 0 || withCutoff.length === precise.length) return false
-
-  // Some but not all shipments are cutoff-sensitive: the customer can still
-  // change the outcome for part of the order today.
-  return withCutoff.some((promise) => promise.maxDate === earliest)
+  return deliveryDaysBetween(earliest, last, input.postcode) >= 1
 }

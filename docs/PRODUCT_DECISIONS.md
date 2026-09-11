@@ -21,7 +21,9 @@ unless missing the cutoff costs more than one calendar day, so that it would
 appear rarely and read as more remarkable when it did.
 
 **Why the literal rule wins.** The hint is not an urgency device; it is the
-condition under which the displayed date is true. If the promise reads
+condition under which the displayed date is true. The message is simply *order
+now and you get this window; order after 19:00 and you get the next one* - for
+example 1-2 days before the cutoff and 2-3 days after it. If the promise reads
 `Fr., 11. September` at 18:30 and ordering at 19:01 would actually deliver on
 Monday, then hiding the cutoff shows the customer a date they can no longer
 get. That is the overpromising this whole concept exists to avoid. A frequent
@@ -89,59 +91,89 @@ date rather than fixed to calendar dates, so they never go stale.
 
 ---
 
-## 4. A second external-fulfilment product carries the split demonstration
+## 4. Every shipment has a delivery window, including a fallback one
 
-**Decision.** The demo catalogue gains `bepanthen`: a sixth product in the
-fictional external fulfilment group that **does** have model coverage. Vagisan
-stays external and stays outside the model.
+**Decision.** `Lieferung in 1–3 Werktagen` is a delivery window, not the
+absence of one. It resolves to real calendar dates from the same dispatch day
+and business calendar as a precise promise, and a fallback shipment is compared
+against other shipments on those dates.
 
-**Context.** The approved design names Voltaren + Vitamin D3 + Vagisan as the
-canonical split basket. Building the basket revealed that this basket can never
-show a material split. Vagisan was the only product that caused a split, and it
-is also the only product with no model coverage, so the second shipment always
-resolved to the broad fallback. With no date on one side there is nothing to
-compare, and the materiality rule correctly refused to claim that one shipment
-arrives earlier - so the split silently never appeared.
+**Context.** An earlier implementation refused to compare a precise shipment
+against a fallback one, on the reasoning that there was "no date on one side"
+to rank. That was wrong. The broad promise is a commitment Redcare already
+makes today; it has a latest date like any other, and the customer experiences
+it as a window. Treating it as unknown made the system behave as if a fallback
+shipment had no arrival date at all.
 
-**Why a second product.** The prototype needs to demonstrate two different
-ideas that had been accidentally entangled in one fixture:
+The bug had a visible consequence: the canonical split basket from the approved
+design (Voltaren + Vagisan) could never show a material split, because the
+second shipment was always a fallback and therefore always deemed
+incomparable. The split silently never appeared.
 
-- *fallback* - the model cannot predict this product at all;
-- *split* - this product ships separately from the rest of the order.
+**Effect of the correction.** The canonical basket now behaves as the design
+intended. In Köln, Frankfurt and Hamburg the Sevenum shipment arrives
+materially earlier than the fallback window and the split is revealed; in
+Berlin and München both land together and the basket stays simple.
 
-Vagisan now demonstrates the first cleanly on its own product page. Bepanthen
-demonstrates the second, with both shipments carrying real dates so the earlier
-one is genuinely earlier.
+**Where the customer-facing wording is unchanged.** Resolving the dates is an
+internal capability. The customer still reads `Lieferung in 1–3 Werktagen`,
+because that is the honest wording when the model could not be trusted to be
+more specific. The dates exist so the system can reason about the shipment -
+compare it, decide whether a split is worth showing, freeze it at confirmation.
 
-**Rejected.** Ranking a precise promise against a fallback by treating the
-fallback as its worst case. It would have needed no new fixture, but the
-comparison would rest on a value the exposure gates had just rejected - telling
-the customer one parcel arrives sooner on the strength of a number we do not
-trust.
-
-**Consequence.** The external product's offset is tuned so the split is
-material on some lanes and not on others. Köln, Frankfurt and Hamburg reveal
-the split; Berlin and München round to identical windows and keep one simple
-promise. The same two products therefore demonstrate both halves of the rule
-depending only on the postcode.
-
-**Production validation.** Real fulfilment grouping and cross-location lead
-times would come from the OMS and the prediction service, not from a fixture.
+**Production validation.** Confirm that the broad promise really is 1-3 working
+days from the same dispatch logic, rather than a looser commitment with
+different internal handling.
 
 ---
 
-## 5. A shared cutoff does not by itself make a split material
+## 5. `bepanthen` stays, but as a clearer demo rather than a necessary one
 
-**Decision.** The cutoff clause of the materiality rule fires only when the
-cutoff distinguishes the shipments - some are cutoff-sensitive and others are
-not. When every shipment shares the same cutoff and the same window, the basket
-keeps one simple promise.
+**Decision.** The sixth product remains in the catalogue.
 
-**Why.** The rule exists so the customer can act on a difference. If both
-parcels arrive in the same window and both are affected by the same cutoff,
-splitting the display shows two identical rows and adds complexity without
-adding information. The original reading fired on every basket where a cutoff
-was visible, which would have made the split effectively permanent.
+**Context.** It was originally added because the canonical split basket appeared
+unable to show a split. That turned out to be the bug in decision 4, not a gap
+in the fixtures - Voltaren + Vagisan works once a fallback is compared properly.
 
-**Production validation.** Worth confirming with usability testing that
-customers read the split as useful rather than as a warning.
+**Why keep it.** It demonstrates a split where **both** shipments show concrete
+dates, which reads more clearly than comparing a date against a broad window,
+and it separates two ideas that are otherwise entangled in one product:
+
+- Vagisan: the model has no coverage, so the customer sees the broad promise;
+- Bepanthen: predictable, but ships separately.
+
+Both baskets are listed in the scenario guide so a reviewer can see either.
+
+**Production validation.** Real fulfilment grouping and cross-location lead
+times would come from the OMS and the prediction service, not a fixture.
+
+---
+
+## 6. The cutoff is a plain statement about today's order, not a comparison
+
+**Decision.** The cutoff means one thing: **order now and you get the earlier
+window; order after 19:00 and you get the later one.** For example 1-2 days
+before the cutoff, 2-3 days after it.
+
+It is a property of the order the customer is placing right now. It is not a
+device for comparing parcels, and it plays no part in deciding whether a split
+is worth showing.
+
+**Context.** An earlier implementation added a second materiality clause that
+tried to reason about which shipments were "cutoff-sensitive" relative to each
+other. That over-complicated a simple idea, and produced odd behaviour - a
+basket where every shipment shared the same cutoff was briefly treated as
+though the cutoff distinguished them.
+
+The materiality rule is now a single question: does one shipment's latest
+promised date land at least one delivery day before another's? The cutoff is
+shown per shipment wherever crossing it would change that shipment's own dates,
+which is the same rule the PDP and checkout use.
+
+**Why this framing is the right one.** The cutoff exists to tell the customer
+what today's decision costs. Missing it moves their delivery out by a business
+day - and across a weekend, by three calendar days. That is worth saying
+plainly. Anything beyond that is machinery the customer did not ask for.
+
+**Production validation.** Confirm the real customer-facing cutoff with Last
+Mile and Operations, and measure the funnel effect with Business.

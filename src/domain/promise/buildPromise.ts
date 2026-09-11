@@ -20,6 +20,30 @@ export const FALLBACK_PROMISE: CustomerPromise = {
 
 export const CUTOFF_TEXT = `Bei Bestellung bis ${PROMISE_POLICY.customerCutoffHour}:00`
 
+/**
+ * The dates behind the broad promise.
+ *
+ * A fallback shipment is not a shipment without a delivery window - `Lieferung
+ * in 1–3 Werktagen` is itself a commitment, and it resolves to real dates from
+ * the same dispatch day and calendar as a precise promise.
+ *
+ * The customer still sees the broad wording. These dates exist so the system
+ * can reason about a fallback shipment: compare it against another shipment,
+ * decide whether a split is material, or freeze it at confirmation.
+ */
+export function fallbackDates(now: Date, postcode: string): { minDate: string; maxDate: string } {
+  const start = effectivePredictionStart(now, postcode)
+  const dates = windowToDates(
+    {
+      min: PROMISE_POLICY.fallbackMinBusinessDays,
+      max: PROMISE_POLICY.fallbackMaxBusinessDays,
+    },
+    start,
+    postcode,
+  )
+  return { minDate: toIsoDate(dates.min), maxDate: toIsoDate(dates.max) }
+}
+
 /** Turn a business-day window into calendar dates from a given dispatch day. */
 export function windowToDates(
   window: BusinessDayWindow,

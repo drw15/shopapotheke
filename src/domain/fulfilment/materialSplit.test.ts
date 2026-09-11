@@ -12,11 +12,15 @@ const precise = (min: string, max: string, cutoffText?: string): CustomerPromise
 
 const fallback: CustomerPromise = { kind: 'fallback', label: 'Lieferung in 1–3 Werktagen' }
 
+/** Thursday 10 September 2026, 14:00 Berlin. */
+const NOW = new Date(Date.UTC(2026, 8, 10, 12, 0, 0))
+
 describe('isMaterialSplit', () => {
   it('is not material when both shipments arrive in the same window', () => {
     expect(
       isMaterialSplit({
         postcode: '50667',
+        now: NOW,
         promises: [precise('2026-09-14', '2026-09-15'), precise('2026-09-14', '2026-09-15')],
       }),
     ).toBe(false)
@@ -26,6 +30,7 @@ describe('isMaterialSplit', () => {
     expect(
       isMaterialSplit({
         postcode: '50667',
+        now: NOW,
         promises: [precise('2026-09-14', '2026-09-14'), precise('2026-09-15', '2026-09-15')],
       }),
     ).toBe(true)
@@ -37,40 +42,44 @@ describe('isMaterialSplit', () => {
     expect(
       isMaterialSplit({
         postcode: '50667',
+        now: NOW,
         promises: [precise('2026-09-11', '2026-09-11'), precise('2026-09-14', '2026-09-14')],
-      }),
-    ).toBe(true)
-  })
-
-  it('is material when an actionable cutoff changes the earlier shipment', () => {
-    expect(
-      isMaterialSplit({
-        postcode: '50667',
-        promises: [
-          precise('2026-09-14', '2026-09-15', 'Bei Bestellung bis 19:00'),
-          precise('2026-09-14', '2026-09-15'),
-        ],
       }),
     ).toBe(true)
   })
 
   it('is not material for a single shipment', () => {
     expect(
-      isMaterialSplit({ postcode: '50667', promises: [precise('2026-09-14', '2026-09-15')] }),
+      isMaterialSplit({ postcode: '50667', now: NOW, promises: [precise('2026-09-14', '2026-09-15')] }),
     ).toBe(false)
   })
 
   it('is not material when both shipments fall back to the same broad promise', () => {
-    expect(isMaterialSplit({ postcode: '50667', promises: [fallback, fallback] })).toBe(false)
+    expect(isMaterialSplit({ postcode: '50667', now: NOW, promises: [fallback, fallback] })).toBe(
+      false,
+    )
   })
 
-  it('is not material when a precise shipment cannot be compared with a fallback', () => {
-    // Without dates on both sides there is no honest earlier/later claim to
-    // make, so the basket stays simple rather than inventing a comparison.
+  it('compares a fallback shipment by the dates behind 1-3 Werktage', () => {
+    // A fallback is still a promise. From Thursday 10 September it resolves to
+    // Friday-Tuesday, so a shipment landing on Friday is materially earlier.
     expect(
       isMaterialSplit({
         postcode: '50667',
+        now: NOW,
         promises: [precise('2026-09-11', '2026-09-11'), fallback],
+      }),
+    ).toBe(true)
+  })
+
+  it('is not material when a precise shipment lands with the fallback window', () => {
+    // Same Thursday: the broad promise reaches Tuesday 15 September, so a
+    // precise shipment ending on the same day adds nothing to say.
+    expect(
+      isMaterialSplit({
+        postcode: '50667',
+        now: NOW,
+        promises: [precise('2026-09-11', '2026-09-15'), fallback],
       }),
     ).toBe(false)
   })
@@ -81,6 +90,7 @@ describe('isMaterialSplit', () => {
     expect(
       isMaterialSplit({
         postcode: '50667',
+        now: NOW,
         promises: [precise('2026-09-11', '2026-09-15'), precise('2026-09-14', '2026-09-15')],
       }),
     ).toBe(false)

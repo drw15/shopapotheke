@@ -61,6 +61,7 @@ export function shouldRevealSplit(input: UpperFunnelInput): boolean {
 
   return isMaterialSplit({
     postcode: input.postcode,
+    now: input.now,
     promises: shipments.map((entry) => entry.promise),
   })
 }

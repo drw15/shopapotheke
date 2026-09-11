@@ -41,20 +41,38 @@ test('a documented unsafe combination falls back without explanation', async ({ 
 })
 
 test('the basket reveals a material split and hides a non-material one', async ({ page }) => {
+  // The canonical basket from the design: the second shipment has no model
+  // coverage, so it shows the broad promise - which is still a delivery window
+  // and is compared on the dates behind it.
+  await page.goto('/product/voltaren')
+  await setPostcode(page, '50667')
+  await page.getByRole('button', { name: /In den Warenkorb/ }).click()
+  await page.waitForURL('**/basket')
+  await addFromBasketSuggestions(page, 'vagisan')
+
+  // Köln: shipment 1 arrives materially earlier.
+  await expect(page.getByText(/kommt in 2 Lieferungen/)).toBeVisible()
+  await expect(page.getByText('Lieferung 1 von 2')).toBeVisible()
+
+  // Berlin: both shipments land together, so the split is not worth showing
+  // and the basket falls back to a single order-level promise. It is the broad
+  // one here, because an unpredictable product widens the whole envelope.
+  await setPostcode(page, '10115')
+  await expect(page.getByText(/kommt in 2 Lieferungen/)).toHaveCount(0)
+  await expect(page.getByText('Lieferung in 1–3 Werktagen').first()).toBeVisible()
+})
+
+test('a split with two predicted shipments shows concrete dates for both', async ({ page }) => {
   await page.goto('/product/voltaren')
   await setPostcode(page, '50667')
   await page.getByRole('button', { name: /In den Warenkorb/ }).click()
   await page.waitForURL('**/basket')
   await addFromBasketSuggestions(page, 'bepanthen')
 
-  // Köln: shipment 1 arrives materially earlier.
   await expect(page.getByText(/kommt in 2 Lieferungen/)).toBeVisible()
-  await expect(page.getByText('Lieferung 1 von 2')).toBeVisible()
-
-  // Berlin: both shipments land together, so the split is not worth showing.
-  await setPostcode(page, '10115')
-  await expect(page.getByText(/kommt in 2 Lieferungen/)).toHaveCount(0)
-  await expect(page.getByText(/Voraussichtliche Lieferung:/).first()).toBeVisible()
+  // Both shipment rows carry a date rather than the broad promise.
+  await expect(page.locator('.basket-split .delivery-estimate__label')).toHaveCount(2)
+  await expect(page.locator('.basket-split')).not.toContainText('Lieferung in 1–3 Werktagen')
 })
 
 test('checkout offers DHL and Hermes with their own delivery windows', async ({ page }) => {

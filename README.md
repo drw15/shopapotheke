@@ -33,13 +33,87 @@ Desktop, 1440×900. The prototype reads your device clock — see
 
 | | |
 |---|---|
-| **Try the scenarios** | [`docs/demo/scenarios.md`](docs/demo/scenarios.md) — exact combinations, no hidden controls |
-| **See the model output** | [`docs/demo/prediction-matrix.md`](docs/demo/prediction-matrix.md) — all 100 combinations, raw values through to what the customer sees |
+| **Try the scenarios** | [`docs/demo/scenarios.md`](docs/demo/scenarios.md) — step-by-step, no hidden controls |
+| **All 100 model combinations** | [`docs/demo/prediction-matrix.md`](docs/demo/prediction-matrix.md) — generated from the fixtures |
 | **Decisions made while building** | [`docs/PRODUCT_DECISIONS.md`](docs/PRODUCT_DECISIONS.md) |
 | **Visual references** | [`docs/reference/shop-apotheke-reference-screenshots/`](docs/reference/shop-apotheke-reference-screenshots/) |
 
 Quickest tour: `/product/voltaren` → enter `50667` → basket with a second
 product → checkout → `/orders/100422` → `/email-preview/100422`.
+
+---
+
+## The demo data, at a glance
+
+### Products
+
+| Product | Ships with | Model coverage | Demonstrates |
+|---|---|---|---|
+| Voltaren Schmerzgel forte | main group | yes | ordinary precise promise |
+| Vitamin D3 2000 I.E. | main group | yes | calibration gate at `10115` (Hermes) |
+| Fenistil Kühl Roll-on | main group | yes | the one visible carrier difference at `10115`; confidence gate at `80331` |
+| Ibu-ratiopharm 400 mg | main group | yes | support gate at `80331` — both carriers fall back |
+| Vagisan FeuchtCreme | separately | **no** | unsupported product → broad promise, and a split |
+| Bepanthen Wund- und Heilsalbe | separately | yes | a split where both shipments show concrete dates |
+
+The two "ships separately" assignments are fictional. They exist to exercise
+the fallback and split paths and say nothing about Redcare's real fulfilment.
+
+### Postcodes
+
+| PLZ | City | Character | Window (main group) |
+|---|---|---|---|
+| `50667` | Köln | nearby, fast | 1–2 Werktage |
+| `60311` | Frankfurt | western-central, fast | 1–2 Werktage |
+| `22083` | Hamburg | northern, mixed | 2 Werktage |
+| `10115` | Berlin | eastern, mixed | 2–3 Werktage |
+| `80331` | München | southern, slower | 2–3 Werktage |
+
+Anything else is unsupported and falls back.
+
+### Combinations worth showing
+
+| What to show | Combination | Result |
+|---|---|---|
+| Generic → precise | `voltaren` + `50667` | 1–3 Werktage becomes a date window |
+| Slower but still precise | `voltaren` + `10115` | a later window, shown just as confidently |
+| Model differs, customer doesn't see it | `voltaren` + `22083` | DHL and Hermes → identical date |
+| Visible carrier difference | `fenistil` + `10115` | DHL 2–3, Hermes 2–4 Werktage |
+| One carrier unsafe → whole promise widens | `fenistil` + `80331` | Hermes confidence fails → broad promise |
+| Calibration gate | `vitamin-d3` + `10115` | Hermes calibration fails → broad promise |
+| Both carriers unsafe | `ibu` + `80331` | support too thin → broad promise |
+| No model coverage | `vagisan` + anywhere | broad promise |
+| Unknown location | any + `99999` | broad promise |
+| **Split shown** | `voltaren` + `vagisan` @ `50667` | one parcel materially earlier |
+| **Split hidden** | `voltaren` + `vagisan` @ `10115` | both land together → one promise |
+| Split, two concrete dates | `voltaren` + `bepanthen` @ `50667` | same rule, both dated |
+| Cutoff live | any precise combination before 19:00 | `Bei Bestellung bis 19:00` |
+| Cutoff costs three days | Friday before 19:00 | Monday vs Tuesday |
+
+### Prebuilt orders
+
+| Order | State | Shows |
+|---|---|---|
+| `#100421` | on time | ETA inside the promise, no exception treatment |
+| `#100422` | **delayed** | new ETA *plus* the original promise, and the proactive email |
+| `#100423` | split | one parcel delivered, one in transit, tracked independently |
+| `#100424` | delivered | normal completed lifecycle |
+
+### How a prediction becomes a promise
+
+```
+carrier-specific distribution     q10 0.62 · q90 1.58 · conf 0.96 · calib 0.012 · n 5400
+  ↓  exposure gates               confidence ≥ 0.90 · calibration ≤ 0.03 · support ≥ 500
+  ↓  conservative rounding        ceil(q10) … ceil(q90)  →  1–2 Werktage
+  ↓  dispatch day + cutoff        ordered Thursday 14:00, before the 19:00 cutoff
+  ↓  business calendar            Mon–Fri, German state holidays skipped
+customer sees                     Voraussichtliche Lieferung: Fr., 11. – Mo., 14. September
+```
+
+Any gate failing at step two ends the chain at `Lieferung in 1–3 Werktagen`,
+with no explanation to the customer. Of the 100 modelled combinations, 6 are
+withheld this way — [the full matrix](docs/demo/prediction-matrix.md) lists
+every row and every reason.
 
 ---
 

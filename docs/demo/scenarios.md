@@ -52,7 +52,7 @@ recommendation: the customer decides.
 
 ## 4. The basket reveals a split only when it helps
 
-Add **Voltaren** and **Bepanthen** to the basket, then change the postcode.
+Add **Voltaren** and **Vagisan** to the basket, then change the postcode.
 
 | Postcode | Basket shows |
 |---|---|
@@ -61,6 +61,13 @@ Add **Voltaren** and **Bepanthen** to the basket, then change the postcode.
 
 Same two products, same two shipments behind the scenes. The basket reveals the
 split only where one parcel genuinely arrives earlier.
+
+Note what is being compared here. Vagisan has no model coverage, so its
+shipment shows `Lieferung in 1–3 Werktagen` — but that is still a delivery
+window with a latest date, so the two shipments can be ranked honestly.
+
+Swap Vagisan for **Bepanthen** to see the same rule with two concrete date
+windows instead of one date and one broad promise.
 
 ## 5. Split checkout with a per-shipment change
 
@@ -124,5 +131,18 @@ Change your device or browser clock to see these.
 | Saturday or Sunday | Promises start from Monday; no promise ever lands on a weekend |
 | 24 December, or a state holiday such as Fronleichnam (4 June 2026) in `80331`/`50667` | The holiday is skipped; the same date in `22083`/`10115` is an ordinary working day |
 
-The cutoff hint appears whenever crossing 19:00 would change the displayed
-date. That is deliberate — see `docs/PRODUCT_DECISIONS.md`.
+### What the cutoff actually says
+
+Order now and you get the earlier window; order after 19:00 and you get the next
+one. Nothing more complicated than that. Köln + Voltaren, for example:
+
+| You order | You get |
+|---|---|
+| Thursday 18:30 | Fr., 11. – Mo., 14. September |
+| Thursday 19:30 | Mo., 14. – Di., 15. September |
+| **Friday 18:30** | **Mo., 14. – Di., 15. September** |
+| **Friday 19:30** | **Di., 15. – Mi., 16. September** |
+
+The hint appears whenever crossing 19:00 would change those dates — because
+hiding it would show a date the customer can no longer get. Friday is where it
+matters most: one business day, but three calendar days to the customer.
