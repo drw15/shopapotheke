@@ -15,7 +15,7 @@ would move the displayed delivery date — the literal rule from the approved
 design — rather than only when the shift is unusually large.
 
 **Context.** During implementation it became clear that this makes the hint
-appear on most weekday afternoons, not only in the Friday-to-Monday case the
+appear on most weekday afternoons, not only in the weekend-crossing case the
 design uses to motivate it. The alternative considered was to suppress the hint
 unless missing the cutoff costs more than one calendar day, so that it would
 appear rarely and read as more remarkable when it did.
@@ -72,7 +72,7 @@ orders, which may differ from this simplification.
 
 **Why.** The prototype should behave like the shop. A reviewer exploring it
 unattended sees the promise Redcare would make right now, and any scenario that
-depends on the calendar — the Friday-to-Monday cutoff case in particular — can
+depends on the calendar — the weekend-crossing cutoff case in particular — can
 be reproduced by changing the device or browser clock. The reviewer guide
 documents which system times produce which behaviour.
 
@@ -171,9 +171,46 @@ shown per shipment wherever crossing it would change that shipment's own dates,
 which is the same rule the PDP and checkout use.
 
 **Why this framing is the right one.** The cutoff exists to tell the customer
-what today's decision costs. Missing it moves their delivery out by a business
-day - and across a weekend, by three calendar days. That is worth saying
-plainly. Anything beyond that is machinery the customer did not ask for.
+what today's decision costs. Missing it moves the dispatch day out by one
+working day, and the delivery days are counted from there. When that extra day
+falls before a weekend the customer feels three calendar days rather than one.
+That is worth saying plainly. Anything beyond that is machinery the customer did
+not ask for.
 
 **Production validation.** Confirm the real customer-facing cutoff with Last
 Mile and Operations, and measure the funnel effect with Business.
+
+---
+
+## 7. The cutoff shifts the dispatch day, and Friday is not the case to show
+
+**Decision.** The cutoff is described as moving **day 0** - the dispatch day -
+rather than as adding a day to the delivery. Before 19:00 the order ships today;
+after 19:00 it ships the next working day, and the modelled delivery days are
+counted from whichever day that is.
+
+**Context.** The reviewer guide previously motivated the cutoff with a Friday
+example, claiming that ordering by Friday 19:00 avoided waiting until Monday.
+That is wrong, and the prototype's own output contradicted it: in Köln a Friday
+order delivers `Mo., 14. - Di., 15. September` whether the cutoff is made or
+missed. The weekend absorbs the difference at the near end, so making a Friday
+cutoff does not buy an earlier arrival.
+
+The engine was correct throughout; only the documentation was wrong. The
+walkthrough was inviting reviewers to set their clock to Friday and observe an
+effect that does not happen there.
+
+**The case that does show it.** A **Wednesday** order in Köln (1-2 Werktage):
+before the cutoff `Do., 10. - Fr., 11. September`, after it `Fr., 11. - Mo., 14.
+September`. The extra dispatch day lands on Thursday, pushing the latest date
+across the weekend - one business day, three calendar days to the customer.
+
+**Why the day-0 framing is better.** Describing the cutoff as "one more day of
+delivery" invites exactly the Friday error, because it suggests the whole window
+slides uniformly. Describing it as a shift of the dispatch day makes the weekend
+behaviour fall out automatically: the shift lands on a working day, and the
+count runs from there.
+
+**Production validation.** Confirm the real dispatch and handover behaviour with
+Last Mile and Operations, including whether weekend dispatch exists at all. If
+it does, the weekend-crossing case changes shape but the day-0 rule holds.

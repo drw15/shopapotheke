@@ -127,22 +127,39 @@ Change your device or browser clock to see these.
 |---|---|
 | A weekday before 19:00 | **Bei Bestellung bis 19:00** under the promise — ordering later moves the date |
 | The same weekday after 19:00 | The hint disappears and the promise has moved out by a day |
-| **Friday** before 19:00 | The cutoff now costs three calendar days: order by 19:00 or wait until Monday |
+| **Wednesday** before 19:00 (Köln) | The weekend case: making the cutoff lands the parcel by Friday, missing it pushes the latest date to Monday |
 | Saturday or Sunday | Promises start from Monday; no promise ever lands on a weekend |
 | 24 December, or a state holiday such as Fronleichnam (4 June 2026) in `80331`/`50667` | The holiday is skipped; the same date in `22083`/`10115` is an ordinary working day |
 
 ### What the cutoff actually says
 
-Order now and you get the earlier window; order after 19:00 and you get the next
-one. Nothing more complicated than that. Köln + Voltaren, for example:
+The cutoff moves the **dispatch day**, and the delivery days are then counted
+from there:
 
-| You order | You get |
-|---|---|
-| Thursday 18:30 | Fr., 11. – Mo., 14. September |
-| Thursday 19:30 | Mo., 14. – Di., 15. September |
-| **Friday 18:30** | **Mo., 14. – Di., 15. September** |
-| **Friday 19:30** | **Di., 15. – Mi., 16. September** |
+- Order **before** 19:00 and the order ships today: dispatch day = today.
+- Order **after** 19:00 and it ships the next working day: dispatch day =
+  the next working day.
+
+Everything else follows from that one shift. Köln + Voltaren (1–2 Werktage),
+with 11 September 2026 a Friday:
+
+| You order | Dispatch day | You get |
+|---|---|---|
+| **Wednesday 18:30** | Wed | **Do., 10. – Fr., 11. September** |
+| **Wednesday 19:30** | Thu | **Fr., 11. – Mo., 14. September** |
+| Thursday 18:30 | Thu | Fr., 11. – Mo., 14. September |
+| Thursday 19:30 | Fri | Mo., 14. – Di., 15. September |
+| Friday 18:30 | Fri | Mo., 14. – Di., 15. September |
+| Friday 19:30 | Mon | Di., 15. – Mi., 16. September |
 
 The hint appears whenever crossing 19:00 would change those dates — because
-hiding it would show a date the customer can no longer get. Friday is where it
-matters most: one business day, but three calendar days to the customer.
+hiding it would show a date the customer can no longer get.
+
+**Wednesday is the case worth showing.** Missing the cutoff there moves the
+latest date from Friday to Monday: one business day, but three calendar days to
+the customer, because the extra day falls across the weekend.
+
+Note what Friday does *not* do. A Friday order lands on Monday whether or not
+the cutoff is made — the weekend absorbs the difference at the near end, and
+only the far end moves. The cutoff is never a claim that ordering now beats the
+weekend; it is a statement about which window today's order falls into.

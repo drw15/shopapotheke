@@ -88,7 +88,7 @@ Anything else is unsupported and falls back.
 | **Split hidden** | `voltaren` + `vagisan` @ `10115` | both land together → one promise |
 | Split, two concrete dates | `voltaren` + `bepanthen` @ `50667` | same rule, both dated |
 | Cutoff live | any precise combination before 19:00 | `Bei Bestellung bis 19:00` |
-| Cutoff costs three days | Friday before 19:00 | Monday vs Tuesday |
+| Cutoff crosses a weekend | Wednesday before vs after 19:00 @ `50667` | latest date moves Friday → Monday |
 
 ### Prebuilt orders
 
@@ -218,8 +218,8 @@ device clock, evaluated in `Europe/Berlin`, so a reviewer in any timezone sees
 the promise Redcare would make — and the prototype behaves like the shop rather
 than a slideshow.
 
-To see calendar-dependent behaviour (the Friday-to-Monday cutoff case, holiday
-skipping), change your system clock; `docs/demo/scenarios.md` lists which times
+To see calendar-dependent behaviour (the Wednesday cutoff case that crosses a
+weekend, holiday skipping), change your system clock; `docs/demo/scenarios.md` lists which times
 produce which behaviour. The demo tracking orders are generated relative to the
 current date, so they never go stale.
 
