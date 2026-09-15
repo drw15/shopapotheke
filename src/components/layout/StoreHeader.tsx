@@ -13,8 +13,9 @@ const CATEGORIES = [
 
 /**
  * Retail header: white main row plus the peach category navigation, as in the
- * basket reference. Search and account are static; they exist for fidelity,
- * not as prototype features.
+ * basket reference. Search and E-Rezept are static; they exist for fidelity,
+ * not as prototype features. "Meine Apotheke" stands in for the account area
+ * and is a real link: it is how the demo reaches orders and tracking.
  */
 export function StoreHeader() {
   const { basket } = useShop()
@@ -39,13 +40,13 @@ export function StoreHeader() {
         </div>
 
         <div className="store-header__actions">
-          <span className="store-header__action">
+          <Link to="/orders" className="store-header__action">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="8" r="3.6" stroke="currentColor" strokeWidth="1.7" />
               <path d="M5 20c.7-3.6 3.6-5.6 7-5.6s6.3 2 7 5.6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             </svg>
-            Anmelden
-          </span>
+            Meine Apotheke
+          </Link>
 
           <span className="store-header__action">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

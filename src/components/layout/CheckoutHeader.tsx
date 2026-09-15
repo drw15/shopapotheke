@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { Link } from 'react-router-dom'
 import { ShopApothekeWordmark } from '../brand/ShopApothekeWordmark'
 
 export type CheckoutStep = 'address' | 'shipping' | 'payment' | 'review'
@@ -21,9 +22,9 @@ export function CheckoutHeader({ activeStep }: { activeStep: CheckoutStep }) {
   return (
     <header className="checkout-header">
       <div className="checkout-width checkout-header__inner">
-        <span className="checkout-header__brand">
+        <Link to="/product/voltaren" className="checkout-header__brand" aria-label="Zur Startseite">
           <ShopApothekeWordmark size={25} />
-        </span>
+        </Link>
 
         <nav className="checkout-stepper" aria-label="Bestellschritte">
           {STEPS.map((step, index) => (
