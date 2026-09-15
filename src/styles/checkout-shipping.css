@@ -163,3 +163,9 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* A carrier settled by the destination: stated, not offered. */
+.carrier-option--fixed {
+  cursor: default;
+  padding-left: 0;
+}

@@ -1,4 +1,5 @@
 import type { ShipmentShippingView } from '../../domain/checkout/buildShippingView'
+import type { CustomerPromise } from '../../domain/promise/types'
 import type { Provider } from '../../domain/types'
 import { CarrierOptionRow } from './CarrierOptionRow'
 import { ShipmentHeader } from './ShipmentHeader'
@@ -57,19 +58,49 @@ export function ShipmentShippingBlock({
       )}
 
       <div className="shipping-block__options">
-        {view.options.map((option) => (
-          <CarrierOptionRow
-            key={option.provider}
-            provider={option.provider}
-            label={option.label}
-            promise={option.promise}
-            checked={selectedProvider === option.provider}
-            onSelect={() => onSelectProvider(option.provider)}
-            name={`provider-${view.shipmentId}`}
+        {view.fixedProvider ? (
+          // The station's operator is the carrier. Stating it is honest; making
+          // it selectable would imply a choice the customer has already made.
+          <FixedCarrierRow
+            label={view.options[0].label}
+            promise={view.options[0].promise}
           />
-        ))}
+        ) : (
+          view.options.map((option) => (
+            <CarrierOptionRow
+              key={option.provider}
+              provider={option.provider}
+              label={option.label}
+              promise={option.promise}
+              checked={selectedProvider === option.provider}
+              onSelect={() => onSelectProvider(option.provider)}
+              name={`provider-${view.shipmentId}`}
+            />
+          ))
+        )}
       </div>
     </section>
+  )
+}
+
+/**
+ * A carrier that was settled by the destination rather than chosen here.
+ *
+ * Deliberately not a radio: there is nothing to select.
+ */
+function FixedCarrierRow({ label, promise }: { label: string; promise: CustomerPromise }) {
+  return (
+    <div className="carrier-option carrier-option--fixed">
+      <span className="carrier-option__body">
+        <strong className="carrier-option__label">{label}</strong>
+        <span className="sa-delivery-text carrier-option__promise">
+          {promise.kind === 'precise' ? `Lieferzeitraum: ${promise.label}` : promise.label}
+        </span>
+        {promise.cutoffText && (
+          <span className="sa-muted carrier-option__cutoff">{promise.cutoffText}</span>
+        )}
+      </span>
+    </div>
   )
 }
 

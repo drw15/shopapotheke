@@ -1,5 +1,5 @@
 import { requireProduct } from '../../data/products'
-import { getCarrierPromises } from '../deliveryFacade'
+import { getCarrierPromises, getSingleCarrierPromise } from '../deliveryFacade'
 import { planShipments } from '../fulfilment/shipmentPlanner'
 import type { CustomerPromise } from '../promise/types'
 import type { Provider } from '../types'
@@ -12,6 +12,14 @@ export type ShipmentShippingView = {
   thumbnails: string[]
   method: 'home' | 'pickup'
   destinationLabel: string
+  /**
+   * The carrier, when it is already settled rather than chosen.
+   *
+   * A pickup station belongs to exactly one carrier's network, so picking the
+   * station picks the carrier. `options` is then a single fixed entry, not a
+   * choice to present.
+   */
+  fixedProvider: Provider | null
   options: Array<{
     provider: Provider
     label: string
@@ -50,12 +58,29 @@ export function buildShippingView(input: CheckoutShippingInput): ShipmentShippin
     const postcode =
       destination.method === 'pickup' ? destination.location.postcode : input.postcode
 
-    const promises = getCarrierPromises({
-      productIds: shipment.productIds,
-      postcode,
-      method: destination.method,
-      now: input.now,
-    })
+    // A pickup station is operated by one carrier, so there is nothing left to
+    // choose: the promise belongs to the station.
+    const fixedProvider = destination.method === 'pickup' ? destination.location.provider : null
+
+    const promises = fixedProvider
+      ? [
+          {
+            provider: fixedProvider,
+            promise: getSingleCarrierPromise({
+              productIds: shipment.productIds,
+              postcode,
+              method: destination.method,
+              provider: fixedProvider,
+              now: input.now,
+            }),
+          },
+        ]
+      : getCarrierPromises({
+          productIds: shipment.productIds,
+          postcode,
+          method: destination.method,
+          now: input.now,
+        })
 
     return {
       shipmentId: shipment.id,
@@ -63,6 +88,7 @@ export function buildShippingView(input: CheckoutShippingInput): ShipmentShippin
       thumbnails: shipment.productIds.map((productId) => requireProduct(productId).image),
       method: destination.method,
       destinationLabel: destinationLabel(destination),
+      fixedProvider,
       options: promises.map(({ provider, promise }) => ({
         provider,
         label: PROVIDER_LABEL[provider],

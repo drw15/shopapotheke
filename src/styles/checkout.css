@@ -350,3 +350,94 @@
   padding: 14px 22px 20px;
   border-top: 1px solid var(--sa-border);
 }
+
+/* --- new delivery address form -------------------------------------------- */
+
+.new-address-form {
+  margin-top: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.new-address-form__title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.new-address-form__row {
+  display: flex;
+  gap: 12px;
+}
+
+.new-address-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13.5px;
+}
+
+.new-address-form__field--grow {
+  flex: 1;
+}
+
+.new-address-form__field--narrow {
+  width: 128px;
+}
+
+.new-address-form__field input {
+  border: 1px solid var(--sa-border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--sa-text);
+  background: var(--sa-white);
+}
+
+.new-address-form__field input:focus-visible {
+  outline: 2px solid var(--sa-red);
+  outline-offset: 1px;
+}
+
+.new-address-form__hint {
+  font-size: 12.5px;
+  margin: 0;
+}
+
+.new-address-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.new-address-form__cancel {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  color: var(--sa-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* The aside entry point is a real control, not a navigation link. */
+button.checkout-aside-card__link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--sa-red);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Each station states its own promise: the operator is the carrier. */
+.pickup-station__promise {
+  display: block;
+  margin-top: 6px;
+  font-size: 13.5px;
+}

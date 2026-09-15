@@ -73,6 +73,43 @@ export type CarrierOptionInput = {
   now: Date
 }
 
+export type SingleCarrierInput = {
+  productIds: string[]
+  postcode: string
+  method: DeliveryMethod
+  provider: Provider
+  now: Date
+}
+
+/**
+ * The promise for one shipment on one known carrier.
+ *
+ * A pickup station is operated by a single carrier, so choosing the station
+ * has already chosen the carrier. There is no envelope to build and no choice
+ * left to offer: the station carries its own promise.
+ */
+export function getSingleCarrierPromise(input: SingleCarrierInput): CustomerPromise {
+  const promises = input.productIds.map((productId) =>
+    buildCustomerPromise({
+      productId,
+      postcode: input.postcode,
+      method: input.method,
+      provider: input.provider,
+      now: input.now,
+    }),
+  )
+
+  if (promises.some((promise) => promise.kind === 'fallback')) return FALLBACK_PROMISE
+
+  const precise = promises as Array<Extract<CustomerPromise, { kind: 'precise' }>>
+
+  // Same rule as the carrier rows: the shipment is constrained by its slowest
+  // item, so the customer is never shown a start date that covers only part of
+  // the parcel.
+  const maxDate = precise.map((p) => p.maxDate).sort().at(-1)!
+  return precise.find((p) => p.maxDate === maxDate)!
+}
+
 /**
  * Per-carrier promises for the checkout shipping step.
  *

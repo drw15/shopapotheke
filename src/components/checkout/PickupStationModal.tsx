@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import type { PickupLocation } from '../../domain/checkout/types'
 import { getPickupLocations } from '../../data/pickupLocations'
+import { getSingleCarrierPromise } from '../../domain/deliveryFacade'
+import { useShop } from '../../state/ShopContext'
+import { useNow } from '../../state/DemoClockContext'
 import { ProviderBadge } from './ProviderBadge'
 
 const FILTERS = [
@@ -28,8 +31,22 @@ export function PickupStationModal({
   onSelect: (location: PickupLocation) => void
   onClose: () => void
 }) {
+  const { basket } = useShop()
+  const now = useNow()
   const locations = getPickupLocations(postcode)
   const [selectedId, setSelectedId] = useState<string | null>(locations[0]?.id ?? null)
+
+  // Each station carries its own promise: the station's operator is the
+  // carrier, so this is the last delivery decision the customer makes.
+  const productIds = basket.map((line) => line.productId)
+  const promiseFor = (location: PickupLocation) =>
+    getSingleCarrierPromise({
+      productIds,
+      postcode: location.postcode,
+      method: 'pickup',
+      provider: location.provider,
+      now,
+    })
 
   const selected = locations.find((location) => location.id === selectedId) ?? null
 
@@ -98,6 +115,9 @@ export function PickupStationModal({
                       {location.street}
                       <br />
                       {location.postcode} {location.city}
+                    </span>
+                    <span className="sa-delivery-text pickup-station__promise">
+                      {promiseFor(location).label}
                     </span>
                   </span>
                   <span className="pickup-station__distance sa-muted">
