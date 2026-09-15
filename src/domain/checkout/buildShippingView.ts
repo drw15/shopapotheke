@@ -3,7 +3,7 @@ import { getCarrierPromises, getSingleCarrierPromise } from '../deliveryFacade'
 import { planShipments } from '../fulfilment/shipmentPlanner'
 import type { CustomerPromise } from '../promise/types'
 import type { Provider } from '../types'
-import { destinationLabel, type Destination } from './types'
+import { destinationLabel, type Destination, type PickupLocation } from './types'
 
 export type ShipmentShippingView = {
   shipmentId: string
@@ -20,6 +20,14 @@ export type ShipmentShippingView = {
    * choice to present.
    */
   fixedProvider: Provider | null
+  /**
+   * The chosen station, when this shipment is going to one.
+   *
+   * The station is what the customer picked and what they will walk to, so it
+   * is what the row should name - the carrier is an attribute of it, not the
+   * headline.
+   */
+  pickupLocation: PickupLocation | null
   options: Array<{
     provider: Provider
     label: string
@@ -89,6 +97,7 @@ export function buildShippingView(input: CheckoutShippingInput): ShipmentShippin
       method: destination.method,
       destinationLabel: destinationLabel(destination),
       fixedProvider,
+      pickupLocation: destination.method === 'pickup' ? destination.location : null,
       options: promises.map(({ provider, promise }) => ({
         provider,
         label: PROVIDER_LABEL[provider],

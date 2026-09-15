@@ -2,9 +2,10 @@ import type { ShipmentShippingView } from '../../domain/checkout/buildShippingVi
 import type { CustomerPromise } from '../../domain/promise/types'
 import type { Provider } from '../../domain/types'
 import { CarrierOptionRow } from './CarrierOptionRow'
+import { ProviderBadge } from './ProviderBadge'
 import { ShipmentHeader } from './ShipmentHeader'
 import { InlineMethodOverride } from './InlineMethodOverride'
-import type { Destination } from '../../domain/checkout/types'
+import type { Destination, PickupLocation } from '../../domain/checkout/types'
 
 /**
  * One shipping block.
@@ -58,11 +59,12 @@ export function ShipmentShippingBlock({
       )}
 
       <div className="shipping-block__options">
-        {view.fixedProvider ? (
-          // The station's operator is the carrier. Stating it is honest; making
-          // it selectable would imply a choice the customer has already made.
-          <FixedCarrierRow
-            label={view.options[0].label}
+        {view.pickupLocation ? (
+          // The station is the choice the customer made, so the row names the
+          // station. Its operator carries the parcel, but that followed from
+          // the station rather than being picked here.
+          <SelectedStationRow
+            location={view.pickupLocation}
             promise={view.options[0].promise}
           />
         ) : (
@@ -84,15 +86,27 @@ export function ShipmentShippingBlock({
 }
 
 /**
- * A carrier that was settled by the destination rather than chosen here.
+ * The chosen pickup station, shown as settled rather than offered.
  *
- * Deliberately not a radio: there is nothing to select.
+ * Deliberately not a radio: the customer already chose this station, and its
+ * operator came with it. Showing a carrier row here would ask a question that
+ * has no second answer.
  */
-function FixedCarrierRow({ label, promise }: { label: string; promise: CustomerPromise }) {
+function SelectedStationRow({
+  location,
+  promise,
+}: {
+  location: PickupLocation
+  promise: CustomerPromise
+}) {
   return (
-    <div className="carrier-option carrier-option--fixed">
+    <div className="carrier-option carrier-option--station">
+      <ProviderBadge provider={location.provider} />
       <span className="carrier-option__body">
-        <strong className="carrier-option__label">{label}</strong>
+        <strong className="carrier-option__label">{location.name}</strong>
+        <span className="sa-muted carrier-option__station-address">
+          {location.street}, {location.postcode} {location.city}
+        </span>
         <span className="sa-delivery-text carrier-option__promise">
           {promise.kind === 'precise' ? `Lieferzeitraum: ${promise.label}` : promise.label}
         </span>

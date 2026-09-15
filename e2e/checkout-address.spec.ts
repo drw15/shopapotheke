@@ -82,5 +82,5 @@ test('pickup goes straight to payment, with no second carrier choice', async ({ 
   await page.getByRole('button', { name: 'Weiter zur Zahlungsart' }).click()
 
   await page.waitForURL('**/checkout/payment')
-  await expect(page.getByText('Standard mit DHL')).toHaveCount(0)
+  await expect(page.getByText(/Standard mit (DHL|HERMES)/)).toHaveCount(0)
 })

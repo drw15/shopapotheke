@@ -164,8 +164,13 @@
   cursor: pointer;
 }
 
-/* A carrier settled by the destination: stated, not offered. */
-.carrier-option--fixed {
+/* The chosen station: stated, not offered. */
+.carrier-option--station {
   cursor: default;
-  padding-left: 0;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.carrier-option__station-address {
+  font-size: 13.5px;
 }
