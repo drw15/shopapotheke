@@ -88,7 +88,7 @@ Anything else is unsupported and falls back.
 | **Split hidden** | `voltaren` + `vagisan` @ `10115` | both land together → one promise |
 | Split, two concrete dates | `voltaren` + `bepanthen` @ `50667` | same rule, both dated |
 | Cutoff live | any precise combination before 19:00 | `Bei Bestellung bis 19:00` |
-| Cutoff crosses a weekend | Wednesday before vs after 19:00 @ `50667` | latest date moves Friday → Monday |
+| Cutoff crosses a weekend | Wed before vs after 19:00 @ `50667`; **Tue** @ `10115` | latest date moves Friday → Monday; the crossing day depends on the lane |
 
 ### Prebuilt orders
 

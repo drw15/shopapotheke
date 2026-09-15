@@ -205,6 +205,16 @@ before the cutoff `Do., 10. - Fr., 11. September`, after it `Fr., 11. - Mo., 14.
 September`. The extra dispatch day lands on Thursday, pushing the latest date
 across the weekend - one business day, three calendar days to the customer.
 
+**But the crossing day is a property of the lane, not a fixed weekday.** Missing
+the cutoff always costs one working day; that day is only felt as three when it
+pushes the latest date past a Friday, and a slower lane reaches that point
+earlier in the week. Köln and Frankfurt (1-2) and Hamburg (2) cross on
+Wednesday; Berlin and München (2-3) cross on Tuesday. Naming a single weekday
+for the whole demo would repeat the Friday mistake in a smaller way - a reviewer
+checking Berlin on Wednesday would see an ordinary one-day shift and conclude
+the weekend case does not exist. The reviewer guide therefore gives the crossing
+day per postcode rather than one weekday for all of them.
+
 **Why the day-0 framing is better.** Describing the cutoff as "one more day of
 delivery" invites exactly the Friday error, because it suggests the whole window
 slides uniformly. Describing it as a shift of the dispatch day makes the weekend

@@ -127,7 +127,7 @@ Change your device or browser clock to see these.
 |---|---|
 | A weekday before 19:00 | **Bei Bestellung bis 19:00** under the promise — ordering later moves the date |
 | The same weekday after 19:00 | The hint disappears and the promise has moved out by a day |
-| **Wednesday** before 19:00 (Köln) | The weekend case: making the cutoff lands the parcel by Friday, missing it pushes the latest date to Monday |
+| **The crossing day for your postcode** (see the table below) before vs after 19:00 | The weekend case: making the cutoff keeps the parcel inside the week, missing it pushes the latest date to Monday |
 | Saturday or Sunday | Promises start from Monday; no promise ever lands on a weekend |
 | 24 December, or a state holiday such as Fronleichnam (4 June 2026) in `80331`/`50667` | The holiday is skipped; the same date in `22083`/`10115` is an ordinary working day |
 
@@ -155,11 +155,25 @@ with 11 September 2026 a Friday:
 The hint appears whenever crossing 19:00 would change those dates — because
 hiding it would show a date the customer can no longer get.
 
-**Wednesday is the case worth showing.** Missing the cutoff there moves the
-latest date from Friday to Monday: one business day, but three calendar days to
-the customer, because the extra day falls across the weekend.
+#### The weekend-crossing day depends on the postcode
 
-Note what Friday does *not* do. A Friday order lands on Monday whether or not
-the cutoff is made — the weekend absorbs the difference at the near end, and
-only the far end moves. The cutoff is never a claim that ordering now beats the
-weekend; it is a statement about which window today's order falls into.
+Missing the cutoff always costs one working day. That day is felt as three
+calendar days only when the shift pushes the latest date past a Friday — and
+which weekday does that depends on how long the lane takes. A faster lane
+crosses later in the week than a slower one:
+
+| Postcode | Window | Order on | before 19:00 | after 19:00 |
+|---|---|---|---|---|
+| `50667` Köln, `60311` Frankfurt | 1–2 Werktage | **Wednesday** | Do. – Fr. | **Fr. – Mo.** |
+| `22083` Hamburg | 2 Werktage | **Wednesday** | Fr. | **Mo.** |
+| `10115` Berlin, `80331` München | 2–3 Werktage | **Tuesday** | Do. – Fr. | **Fr. – Mo.** |
+
+So a reviewer checking Berlin on a Wednesday sees an ordinary one-day shift, not
+the weekend case. Set the clock to the crossing day for the postcode being
+demonstrated.
+
+Note what Friday does *not* do, in any area. A Friday order lands on Monday
+whether or not the cutoff is made — the weekend absorbs the difference at the
+near end, and only the far end moves. The cutoff is never a claim that ordering
+now beats the weekend; it is a statement about which window today's order falls
+into.
