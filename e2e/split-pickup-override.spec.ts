@@ -60,6 +60,35 @@ test('the other shipment keeps its own carrier choice', async ({ page }) => {
   await expect(homeBlock.locator('input[type="radio"][name^="provider-"]')).toHaveCount(2)
 })
 
+test('the station picker predicts for that shipment, not the whole basket', async ({ page }) => {
+  await splitCheckoutAtShipping(page)
+
+  await page.locator('.shipping-block').first().getByRole('button', { name: 'Lieferart ändern' }).click()
+  await page.getByLabel('An einen Abholort').click()
+
+  // Shipment 1 is Voltaren alone. The station must not quote the window of the
+  // slower Bepanthen parcel that happens to share the basket.
+  const inPicker = (
+    await page
+      .locator('.pickup-station')
+      .filter({ hasText: 'Waescherei Kinne' })
+      .locator('.pickup-station__promise')
+      .innerText()
+  ).trim()
+
+  await page.getByText('Waescherei Kinne').click()
+  await page.getByRole('button', { name: 'Abholstation übernehmen' }).click()
+
+  const onRow = (
+    await page.locator('.shipping-block').first().locator('.carrier-option__promise').innerText()
+  )
+    .replace('Lieferzeitraum:', '')
+    .trim()
+
+  // What the picker promised is what the shipment then shows.
+  expect(onRow).toBe(inPicker)
+})
+
 test('the pickup shipment still states a delivery promise', async ({ page }) => {
   await splitCheckoutAtShipping(page)
   await overrideFirstShipmentToPickup(page)

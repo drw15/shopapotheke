@@ -8,6 +8,8 @@ import { destinationLabel, type Destination, type PickupLocation } from './types
 export type ShipmentShippingView = {
   shipmentId: string
   itemCount: number
+  /** This shipment's products, for re-predicting it on its own. */
+  productIds: string[]
   /** Tiny thumbnails only: checkout is about delivery options, not products. */
   thumbnails: string[]
   method: 'home' | 'pickup'
@@ -93,6 +95,7 @@ export function buildShippingView(input: CheckoutShippingInput): ShipmentShippin
     return {
       shipmentId: shipment.id,
       itemCount: shipment.productIds.length,
+      productIds: shipment.productIds,
       thumbnails: shipment.productIds.map((productId) => requireProduct(productId).image),
       method: destination.method,
       destinationLabel: destinationLabel(destination),

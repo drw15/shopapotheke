@@ -24,10 +24,18 @@ const FILTERS = [
  */
 export function PickupStationModal({
   postcode,
+  productIds: scopedProductIds,
   onSelect,
   onClose,
 }: {
   postcode: string | null
+  /**
+   * The products this choice applies to. Omitted at order level, where it is
+   * the whole basket; passed when one shipment of a split order is being
+   * changed, so the station shows that parcel's promise and not the slowest
+   * item in the basket.
+   */
+  productIds?: string[]
   onSelect: (location: PickupLocation) => void
   onClose: () => void
 }) {
@@ -38,7 +46,7 @@ export function PickupStationModal({
 
   // Each station carries its own promise: the station's operator is the
   // carrier, so this is the last delivery decision the customer makes.
-  const productIds = basket.map((line) => line.productId)
+  const productIds = scopedProductIds ?? basket.map((line) => line.productId)
   const promiseFor = (location: PickupLocation) =>
     getSingleCarrierPromise({
       productIds,

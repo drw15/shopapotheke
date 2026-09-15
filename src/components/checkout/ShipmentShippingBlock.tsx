@@ -51,6 +51,7 @@ export function ShipmentShippingBlock({
       {overrideOpen && (
         <InlineMethodOverride
           shipmentId={view.shipmentId}
+          productIds={view.productIds}
           currentMethod={view.method}
           postcode={postcode}
           onSelect={onOverrideDestination}

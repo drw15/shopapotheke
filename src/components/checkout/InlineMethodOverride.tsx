@@ -16,12 +16,15 @@ import { PickupStationModal } from './PickupStationModal'
  */
 export function InlineMethodOverride({
   shipmentId,
+  productIds,
   currentMethod,
   postcode,
   onSelect,
   onClose,
 }: {
   shipmentId: string
+  /** This shipment's products, so a station shows this parcel's own promise. */
+  productIds: string[]
   currentMethod: 'home' | 'pickup'
   postcode: string | null
   onSelect: (destination: Destination) => void
@@ -71,6 +74,7 @@ export function InlineMethodOverride({
       {pickerOpen && (
         <PickupStationModal
           postcode={postcode}
+          productIds={productIds}
           onSelect={(location) => {
             onSelect({ method: 'pickup', location })
             setPickerOpen(false)
