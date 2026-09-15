@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# The app is a client-side SPA using BrowserRouter. Netlify must serve
+# index.html for every path so deep links (/basket, /orders/:id) resolve
+# in the router instead of 404ing on a file that does not exist.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

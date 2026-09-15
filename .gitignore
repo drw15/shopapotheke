@@ -5,3 +5,7 @@ playwright-report
 test-results
 *.local
 .DS_Store
+
+# Local Netlify folder
+.netlify
+deno.lock
